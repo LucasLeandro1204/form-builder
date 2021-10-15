@@ -1,0 +1,79 @@
+$breakpoints: (
+  mobilexs: (
+    min: none,
+    max: 360px
+  ),
+  mobile: (
+    min: 360px,
+    max: 479px
+  ),
+  smartphone: (
+    min: 480px,
+    max: 639px
+  ),
+  phablet: (
+    min: 640px,
+    max: 767px
+  ),
+  tablet: (
+    min: 768px,
+    max: 1023px
+  ),
+  laptop: (
+    min: 1024px,
+    max: 1199px
+  ),
+  desktop: (
+    min: 1200px,
+    max: 1439px
+  ),
+  widescreen: (
+    min: 1440px,
+    max: none
+  ),
+);
+
+@mixin set-breakpoint($object, $break: only) {
+  @if map-has-key($breakpoints, $object) {
+    @if $break == only {
+      $val1: map-get(map-get($breakpoints, $object), min);
+      $val2: map-get(map-get($breakpoints, $object), max);
+      @if $object == mobile {
+        @media screen and (max-width: $val2) {
+          @content;
+        }
+      }
+      @if $object == widescreen {
+        @media screen and (min-width: $val1) {
+          @content;
+        }
+      } @else {
+        @media screen and (min-width: $val1) and (max-width: $val2) {
+          @content;
+        }
+      }
+    }
+    @if $break == up {
+      $val: map-get(map-get($breakpoints, $object), min);
+      @if $object != mobile {
+        @media screen and (min-width: $val) {
+          @content;
+        }
+      } @else {
+        @content;
+      }
+    }
+    @if $break == down {
+      $val: map-get(map-get($breakpoints, $object), max);
+      @if $object != widescreen {
+        @media screen and (max-width: $val) {
+          @content;
+        }
+      } @else {
+        @content;
+      }
+    }
+  } @else {
+    @warn 'Unknown {$object} in {$breakpoints}';
+  }
+}

@@ -1,4 +1,13 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+// @ts-ignore
+import directives from "./directives";
 
-createApp(App).mount('#app')
+import App from './App.vue'
+import {createApp} from 'vue'
+
+import '@/prototypes'
+
+const app = createApp(App)
+
+directives(app)
+
+app.mount('#app')

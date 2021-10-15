@@ -1,0 +1,55 @@
+@import "../../abstracts/index";
+
+.preselected-placeholder {
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+  left: rem-calc(16);
+  opacity: 0.8;
+  font-weight: 400;
+  padding-top: rem-calc(4);
+}
+
+.field-select {
+  position: relative;
+
+  select {
+    position: relative;
+    font-size: rem-calc(16);
+    padding: rem-calc(10);
+
+    ::first-letter {
+      text-transform: uppercase;
+    }
+
+    option {
+      ::first-letter {
+        text-transform: uppercase;
+      }
+
+      &:checked {
+        // Selected
+      }
+    }
+  }
+
+  &.active {
+    &::after {
+      transform: rotate(90deg) scale(1.2);
+    }
+  }
+
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 0 auto;
+    height: 100%;
+    width: rem-calc(60);
+    //background: $field-select-icon no-repeat 50%;
+    background-size: $field-select-icon-size;
+    opacity: 0.8;
+    transition: transform cubic-bezier(0.280, 0.840, 0.420, 1) 280ms;
+  }
+}
+

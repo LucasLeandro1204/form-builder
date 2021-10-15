@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --app-theme-color: #0082A0;
+  --app-theme-color-red: #fff;
+  --app-theme-color-green: #fff;
+  --app-theme-color-blue: #fff;
+  --app-theme-color-threshold: 0.5;
+  --app-theme-color-border-threshold: 0.8;
+  --app-theme-btn-color: #FFFFFF;
+  --app-theme-btn-background: var(--app-theme-color);
+  --primary-color: #0071fe;
+  --error-color: #f23648;
+  --error-bg-color: #fddfe2;
+  --success-color: #21a67a;
+  --success-bg-color: #e0eee4;
+}
+
+@import "abstracts/index";
+@import "atoms/index";
+@import "components/index";
+@import "templates/index";
+@import "vendors/index";
+
+// IMPORTANT FORMVUELATE
+.schema-row {
+  display: flex;
+}
+
+.icon-invalid-emoji {
+  $size: rem-calc(32);
+  width: $size;
+  height: $size;
+}
+
+
+.vue-treeselect__input {
+  all: initial !important;
+}
+
+.unlock-animation-root {
+  display: flex;
+  flex-direction: column;
+  height: rem-calc(400);
+  width: rem-calc(600);
+  position: relative;
+  justify-content: center;
+  align-items: center;
+
+  .hacker-title {
+    width: 100%;
+    text-align: center;
+    left: 0;
+  }
+
+  .text-effect-container {
+    #text-effect {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      color: #1e1e1e;
+      font-size: 1.5em;
+
+      > span {
+        height: rem-calc(80);
+        width: 100%;
+
+        &.letter-active {
+          color: #ff5153;
+        }
+
+      }
+    }
+
+    .lock-container {
+    }
+
+    .feedback-container {
+
+    }
+
+  }
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: $app-font-family;
+  font-size: 0.9em;
+  font-weight: 400;
+  line-height: 1.2;
+  -webkit-font-smoothing: antialiased;
+  text-align: left;
+  background: #FFFFFF;
+  color: $app-font-color;
+
+  ::selection {
+    background: rgba(207, 92, 252, 0.7);
+  }
+
+  &.dark-mode {
+    //background: #0d1117;
+    //color: #f7f7f7;
+  }
+
+  * {
+    text-align: left;
+  }
+}
+
+#app {
+  min-height: 100vh;
+
+}
+
+.app-grid-blocks {
+  > * {
+    grid-gap: rem-calc(20);
+    padding: 0 rem-calc(18);
+    display: grid;
+    align-content: center;
+    grid-template-columns: repeat(2, 1fr);
+
+    @include set-breakpoint(tablet, down) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include set-breakpoint(smartphone, down) {
+      grid-template-columns: 1fr;
+      padding: 0;
+    }
+  }
+}

@@ -1,0 +1,56 @@
+@import "../../abstracts";
+
+.standalone-form-component {
+  overflow: hidden;
+}
+
+.standalone-form-wrapper {
+  background: $white;
+  border: solid rem-calc(2) transparent;
+  border-radius: $app-field-border-radius;
+  padding: rem-calc(32) rem-calc(12);
+  margin: 0 auto rem-calc(24);
+  $shadow-size: rem-calc(4);
+  box-shadow: rgba(0, 0, 0, 0.04) 0 $shadow-size calc(#{$shadow-size} * 0.5);
+}
+
+.standalone-form-logo {
+  margin: 0 0 2.4em;
+}
+
+.standalone-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-direction: row;
+  padding-right: rem-calc(6);
+
+  @include set-breakpoint(smartphone, down) {
+    padding-right: rem-calc(18);
+  }
+}
+
+.standalone-form-heading {
+  display: grid;
+  grid-template-columns: 1fr max-content;
+}
+
+.standalone-form-option-icons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.standalone-form-title-text {
+  margin: 0 0 rem-calc(14);
+  padding: 0 rem-calc(10);
+
+  > * {
+    color: #0a284b;
+  }
+
+  h1 {
+    margin: 0 0 rem-calc(12) 0;
+    font-size: rem-calc(24);
+  }
+}

@@ -1,0 +1,57 @@
+@import "../../abstracts/index";
+
+@mixin read-only-fields() {
+  border: solid rem-calc(2) lighten($app-black, 75%) !important;
+  border-right-color: transparent !important;
+  border-top-color: transparent !important;
+  border-radius: 0 !important;
+  border-left: solid rem-calc(2) transparent !important;
+}
+
+.read-only {
+  .field-wrapper {
+
+    .control {
+      input, select, textarea {
+        @include read-only-fields;
+      }
+
+      textarea {
+        min-height: min-content;
+      }
+
+      input[type='checkbox'] {
+        display: none;
+      }
+
+      .smart-placeholder {
+        top: rem-calc(-20) !important;
+        left: rem-calc(8) !important;
+      }
+
+      .field-checkmark {
+        display: none !important;
+      }
+    }
+
+    .file-uploader {
+      input[type='file'] {
+        &::after {
+          @include read-only-fields;
+          background: none;
+          content: 'Nog niet geüpload.';
+        }
+      }
+    }
+
+    &:active {
+      .control {
+        input {
+          border-left-color: $app-black !important;
+        }
+      }
+    }
+  }
+
+}
+
