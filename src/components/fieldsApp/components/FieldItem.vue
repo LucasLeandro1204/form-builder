@@ -23,10 +23,10 @@ import {useActor} from '@xstate/vue'
 import {defineProps, computed, ref} from 'vue'
 
 const props = defineProps<{
-  todoRef: ActorRef<any>
+  fieldRef: ActorRef<any>
 }>();
 
-const {state, send} = useActor(props.todoRef)
+const {state, send} = useActor(props.fieldRef)
 
 const label = computed(() => state.value.context.label)
 

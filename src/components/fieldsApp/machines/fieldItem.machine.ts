@@ -57,7 +57,7 @@ export const createFieldMachine = ({id, component, label}: Field) => {
                 editing: {
                     on: {
                         CHANGE: {
-                            actions: fieldModel.assign((context, event) => ({
+                            actions: fieldModel.assign((context, event: any) => ({
                                 [event.property]: event.value
                             }))
                         },

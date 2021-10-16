@@ -1,12 +1,13 @@
 import {spawn, ActorRef} from 'xstate';
 import {nanoid} from 'nanoid';
-import {createFieldMachine} from './fieldItem';
+import {createFieldMachine} from './fieldItem.machine';
 import {createModel} from 'xstate/lib/model';
+// @ts-ignore
 import {capitalize} from "lodash";
 
 const toComponentName = (as: string) => {
     let component
-    const componentMap = {
+    const componentMap: any = {
         'legend': () => component = 'FormLegend',
         'text': () => component = 'FormText',
         'number': () => component = 'FormNumber',
@@ -72,15 +73,10 @@ export const fieldsMachine = fieldsModel.createMachine({
             ready: {}
         },
         on: {
-            'NEW.FIELD.CHANGE': {
-                actions: fieldsModel.assign({
-                    field: (_, event) => event.value
-                })
-            },
             'NEW.FIELD.COMMIT': {
                 actions: [
                     fieldsModel.assign({
-                        fields: (context, event) => {
+                        fields: (context, event: any) => {
                             const newField = createField(event.as);
                             return context.fields.concat({
                                 ...newField,
