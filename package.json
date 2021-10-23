@@ -7,10 +7,22 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@xstate/inspect": "^0.5.0",
+    "@formvuelate/plugin-vee-validate": "^3.6.4",
+    "@vueuse/gesture": "^1.0.0",
+    "@xstate/inspect": "^0.3.0",
+    "@xstate/test": "^0.4.2",
     "@xstate/vue": "^0.8.1",
+    "deep-filter": "^1.0.2",
+    "deepdash": "^5.3.9",
+    "formvuelate": "^3.6.4",
     "lodash": "^4.17.21",
-    "vue": "^3.2.16"
+    "move-position": "^2.0.0",
+    "nanoid": "^3.1.30",
+    "vee-validate": "^4.5.2",
+    "vue": "3.2.20",
+    "vue-use-spring": "^0.1.1",
+    "xstate": "^4.25.0",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.175",

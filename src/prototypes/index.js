@@ -1,18 +1,21 @@
-// Object.defineProperty(Array.prototype, 'first', {
-//     value() {
-//         return this.find(Boolean)
-//     }
-// });
-
 /**
- *  Array.prototype.first
+ * Array.prototype.first
  * @param value
  * @returns {{value: (function(): *)}}
  */
-Array.prototype.first = function () {
-    return {
-        value: () => this.find(Boolean)
+Object.defineProperty(Array.prototype, 'first', {
+    value() {
+        return this.find(Boolean)
     }
+});
+
+/**
+ * Array.prototype.move
+ * @param from
+ * @param to
+ */
+Array.prototype.move = function(from, to) {
+    this.splice(to, 0, this.splice(from, 1)[0]);
 };
 
 /**

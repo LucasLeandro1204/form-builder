@@ -8,7 +8,7 @@ const fileNamesWithoutExtension = [
     'info', 'question', 'search', 'sections', 'table',
     'singleline', 'multiline', 'numbers', 'image', 'slider', 'attachments',
     'date', 'datetime', 'switchOutline', 'dropdown', 'checkbox', 'checklist',
-    'close', 'caretDown',
+    'close', 'caretDown', 'switchOutline',
 ]
 
 export const icons = fileNamesWithoutExtension.reduce((acc, fileName) => {

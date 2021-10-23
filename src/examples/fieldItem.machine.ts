@@ -1,11 +1,12 @@
 import {sendParent} from 'xstate';
 import {createModel} from 'xstate/lib/model';
+import {ActorRef} from "xstate/lib/types";
 
 const fieldModel = createModel(
     {
         id: '',
         component: '',
-        label: '',
+        ref: null,
     },
     {
         events: {
@@ -22,10 +23,10 @@ const fieldModel = createModel(
 interface Field {
     id: string;
     component: string;
-    label: string;
+    ref: ActorRef<any>;
 }
 
-export const createFieldMachine = ({id, component, label}: Field) => {
+export const createFieldMachine = ({id, component, ref}: any) => {
     return fieldModel.createMachine(
         {
             id: 'field',
@@ -33,7 +34,7 @@ export const createFieldMachine = ({id, component, label}: Field) => {
             context: {
                 id,
                 component,
-                label,
+                ref,
             },
             on: {
                 DELETE: 'deleted'
