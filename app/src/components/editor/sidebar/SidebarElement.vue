@@ -77,9 +77,6 @@ onMounted(() => {
     transform: translate(calc(var(--draggingX) * 1px), calc(var(--draggingY) * 1px)) scale(0.9) rotate(-10deg);
     transition: none;
     cursor: grabbing;
-    box-shadow: rem-calc(4) rem-calc(4) rem-calc(10) rgba(55, 84, 170, 0.05),
-    rem-calc(-6) rem-calc(-6) rem-calc(8) rem-calc(14) rgba(255, 255, 255, .1),
-    0 0 rem-calc(4) rgba(255, 255, 255, .2);
 
     .editor-element-icon {
     }

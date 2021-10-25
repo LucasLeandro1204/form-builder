@@ -5,12 +5,6 @@ import Sidebar from '@/components/editor/sidebar/Sidebar.vue'
 import Layout from "@/components/editor/layout/Layout.vue";
 import {appMachine} from '@/components/editor/machines/app.machine'
 
-// import {inspect} from '@xstate/inspect';
-// inspect({
-//   url: 'https://statecharts.io/inspect',
-//   iframe: false
-// });
-
 const devTools = false
 
 const service = interpret(appMachine, {devTools})

@@ -45,7 +45,7 @@ export const dragMachine = createMachine<DragContext, DragEvent, DragState>(
             dragging: {
                 invoke: [
                     {src: 'capturePointer'},
-                    {src: 'delegatePointer'},
+                    {src: 'pointerService'},
                 ],
                 on: {
                     pointermove: {
@@ -133,8 +133,8 @@ export const dragMachine = createMachine<DragContext, DragEvent, DragState>(
                     context.element.removeEventListener('lostpointercapture', handleEvent);
                 };
             },
-            delegatePointer: (context, event) => (callback) => {
-                const id = setInterval(() => callback('DELEGATE_POINTER_EVENT'), 440);
+            pointerService: (context, event) => (callback) => {
+                const id = setInterval(() => callback('DELEGATE_POINTER_EVENT'), 220);
                 return () => clearInterval(id);
             },
         },

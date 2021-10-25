@@ -18,7 +18,6 @@ const delegatePointerConfig = {
                             type: "DELEGATE_POINTER_EVENT",
                             originalContext: context,
                             originalEvent: event,
-                            // @ts-ignore
                         }), {to: context => context.layout.ref})
                     ],
                 }
@@ -39,12 +38,10 @@ export const appMachine = createMachine({
                 always: 'ready',
                 entry: assign({
                     sidebar: (context) => ({
-                        // @ts-ignore
                         ...context.sidebar,
                         ref: spawn(sidebarMachine)
                     }),
                     layout: (context) => ({
-                        // @ts-ignore
                         ...context.layout,
                         ref: spawn(layoutMachine)
                     })
@@ -52,6 +49,11 @@ export const appMachine = createMachine({
             },
             ready: {
                 type: 'parallel',
+                entry: {
+                    actions: [
+                        (ctx, evt) => document.ondragstart = () => false
+                    ]
+                },
                 states: {
                     internal: {},
                     external: {

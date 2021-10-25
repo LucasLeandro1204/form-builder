@@ -24,34 +24,35 @@ const toComponentName = (as) => {
     return (componentMap[as] || componentMap['default'])()
 }
 
-const createRowElement = (element) => ({
+const createRowElement = (element, placeholder) => ({
     id: nanoid(),
     as: ROW,
     children: [{
         id: nanoid(),
         as: COLUMN,
-        children: [{...createComponentElement(element)}]
+        children: [{...createComponentElement(element, placeholder)}]
     }]
 })
 
-const createColumnElement = (element) => ({
+const createColumnElement = (element, placeholder) => ({
     id: nanoid(),
     as: COLUMN,
-    children: [{...createComponentElement(element)}]
+    children: [{...createComponentElement(element, placeholder)}]
 })
 
-const createComponentElement = (element) => ({
+const createComponentElement = (element, placeholder) => ({
     id: nanoid(),
     as: COMPONENT,
-    ...createElement(element),
+    ...createElement(element, placeholder),
 })
 
 
-const createElement = ({as}) => {
+const createElement = ({as, placeholder}) => {
     const properties = {
         label: capitalize(as),
         model: as?.length ? toCamelCaseString(as) : '',
         component: toComponentName(as),
+        placeholder: !!placeholder,
     }
     return addProperties({as, properties})
 }
@@ -85,25 +86,25 @@ const addProperties = ({as, properties}) => {
 }
 
 
-const createPlaceholderElement = (currentPath = [], layout, element) => {
-    let newPlaceholderElement
-
-    if (currentPath.length) {
-        const [rowIndex, columnIndex, componentIndex] = currentPath
-        switch (currentPath.length) {
-            case 1:
-                layout.splice(rowIndex, 0, createRowElement(element))
-                break;
-            case 2:
-                layout[rowIndex].children.splice(columnIndex, 0, createColumnElement(element))
-                break;
-            case 3:
-                layout[rowIndex].children[columnIndex].children.splice(componentIndex, 0, createComponentElement(element))
-                break;
-        }
-    }
-    return newPlaceholderElement
-}
+// const createPlaceholderElement = (currentPath = [], layout, element) => {
+//     let newPlaceholderElement
+//
+//     if (currentPath.length) {
+//         const [rowIndex, columnIndex, componentIndex] = currentPath
+//         switch (currentPath.length) {
+//             case 1:
+//                 layout.splice(rowIndex, 0, createRowElement(element))
+//                 break;
+//             case 2:
+//                 layout[rowIndex].children.splice(columnIndex, 0, createColumnElement(element))
+//                 break;
+//             case 3:
+//                 layout[rowIndex].children[columnIndex].children.splice(componentIndex, 0, createComponentElement(element))
+//                 break;
+//         }
+//     }
+//     return newPlaceholderElement
+// }
 
 
 const commitCreatePlaceholderElement = (currentPath = [], layout, element) => {
@@ -111,26 +112,25 @@ const commitCreatePlaceholderElement = (currentPath = [], layout, element) => {
         const [rowIndex, columnIndex, componentIndex] = currentPath
         switch (currentPath.length) {
             case 1:
-                layout.splice(rowIndex, 0, createRowElement(element))
+                layout.splice(rowIndex, 0, createRowElement(element, true))
                 break;
             case 2:
-                layout[rowIndex].children.splice(columnIndex, 0, createColumnElement(element))
+                layout[rowIndex].children.splice(columnIndex, 0, createColumnElement(element, true))
                 break;
             case 3:
-                layout[rowIndex].children[columnIndex].children.splice(componentIndex, 0, createComponentElement(element))
+                layout[rowIndex].children[columnIndex].children.splice(componentIndex, 0, createComponentElement(element, true))
                 break;
         }
     }
 }
 
-const pointerConfig = {
+const pointerShiftStates = {
     initial: 'active',
     states: {
         active: {
             on: {
                 DELEGATE_POINTER_EVENT: {
                     actions: [
-                        () => console.log('Pointer Event Delegation Succeeded'),
                         'respondPointerPath',
                         'setPreviousPath',
                     ],
@@ -140,20 +140,19 @@ const pointerConfig = {
     }
 }
 
-const layoutContext = {
-    layout: layout,
-    previousPath: []
-}
 
 interface LayoutContext {
     layout: Array<{ children: Array<{ children: Array<{}> }> }>;
-    previousPath: Array<number>; // 3 deep
+    previousPath: Array<[number, number, number]>
 }
 
-export const layoutMachine = createMachine({
+export const layoutMachine = createMachine<LayoutContext>({
         id: "layout",
         initial: "loading",
-        context: {...layoutContext},
+        context: {
+            layout: layout,
+            previousPath: []
+        },
         states: {
             loading: {
                 always: 'ready',
@@ -167,14 +166,10 @@ export const layoutMachine = createMachine({
                         states: {
                             idle: {}
                         },
-                        on: {
-                            RECEIVE_POINTER_EVENT: {
-                                target: ''
-                            }
-                        },
+                        on: {},
                     },
                     external: {
-                        ...pointerConfig
+                        ...pointerShiftStates
                     }
                 },
             },
@@ -190,7 +185,7 @@ export const layoutMachine = createMachine({
                 const samePath = isEqual(previousPath, currentPath)
                 const layoutComponents = layoutFlatten.filter(obj => obj.type === 'as')
                 const exists = layoutComponents.some(el => el.id === element.id)
-                if (exists || samePath) return
+                // if (exists || samePath) return
                 // Step 1
                 if (exists) {
                     console.log('REMOVE')

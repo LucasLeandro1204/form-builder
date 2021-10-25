@@ -9,7 +9,7 @@ const props = defineProps<{
 const rowIndex = ref(props.rowIndex)
 const columnIndex = ref(props.columnIndex)
 
-const interactive = inject('interactive');
+const interactive = inject('interactive')
 
 </script>
 

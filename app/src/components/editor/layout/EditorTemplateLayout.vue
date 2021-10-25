@@ -29,18 +29,18 @@ watch(state, (state) => {
        :key="index"
        :data-position="index"
        :row-index="index">
-      <Column v-for="(column, idx) in row.children" :key="idx"
-              :data-position="`${index}-${idx}`"
-              :row-index="index"
-              :column-index="idx">
-        <Component v-for="(component, i) in column.children" :key="i"
-                   :data-position="`${index}-${idx}-${i}`"
-                   :component-props="component"
-                   :index="i"
-                   :row-index="index"
-                   :column-index="idx"
-                   :component-index="i"/>
-      </Column>
+    <Column v-for="(column, idx) in row.children" :key="idx"
+            :data-position="`${index}-${idx}`"
+            :row-index="index"
+            :column-index="idx">
+      <Component v-for="(component, i) in column.children" :key="i"
+                 :data-position="`${index}-${idx}-${i}`"
+                 :component-props="component"
+                 :index="i"
+                 :row-index="index"
+                 :column-index="idx"
+                 :component-index="i"/>
+    </Column>
   </Row>
 </template>
 
@@ -78,7 +78,8 @@ watch(state, (state) => {
 
 .draggable-row {
   z-index: 49;
-  padding: rem-calc(12) 0;
+  //padding: rem-calc(12) 0;
+
   display: flex;
   flex-direction: column;
 
@@ -96,8 +97,11 @@ watch(state, (state) => {
   z-index: 99;
   position: relative;
   display: flex;
-  padding: rem-calc(12) 0;
-
+  padding: 0 rem-calc(12);
+  &:last-child,
+  &:first-child {
+    padding: 0;
+  }
   .column-inset-block {
 
   }
@@ -105,7 +109,12 @@ watch(state, (state) => {
 
 .draggable-component {
   z-index: 199;
-  padding: 0 rem-calc(12);
+  padding: rem-calc(12);
+
+  &:first-child,
+  &:last-child {
+    padding: 0;
+  }
 
   .component-inset-block {
 
@@ -136,6 +145,7 @@ watch(state, (state) => {
     width: 100%;
     display: flex;
     flex-flow: row nowrap;
+    padding: rem-calc(12) 0;
   }
 
   .column-inset-block {
@@ -143,6 +153,16 @@ watch(state, (state) => {
     width: 100%;
     display: flex;
     flex-direction: column;
+
+    .draggable-component {
+      padding: rem-calc(12);
+
+      &:last-child,
+      &:first-child {
+        padding-bottom: 0;
+        padding-top: 0;
+      }
+    }
   }
 
   .component-inset-block {
@@ -160,35 +180,33 @@ watch(state, (state) => {
 
 
 .outset-block {
-  //border: solid rem-calc(1) #0d4586;
+  border: solid rem-calc(1) #0d4586;
 
   &.top-block,
   &.bottom-block {
     height: rem-calc(24);
     width: 100%;
+    //background: #20df7e;
   }
 
   &.right-block,
   &.left-block {
     height: 100%;
     width: rem-calc(24);
+    //background: #f1eb7b;
   }
 
   &.top-block {
-    background: #f1eb7b;
-
   }
 
   &.right-block {
-    background: #f1eb7b;
+
   }
 
   &.bottom-block {
-    background: #f1eb7b;
   }
 
   &.left-block {
-    background: #f1eb7b;
   }
 }
 </style>
