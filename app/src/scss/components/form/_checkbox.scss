@@ -1,0 +1,242 @@
+@import "../../abstracts/index";
+
+.checkbox-wrapper {
+  display: inline-flex;
+}
+
+.field-wrapper {
+  &.checkbox,
+  &.radio {
+    display: inline;
+
+    &.clear-top {
+      margin-top: 0;
+    }
+
+    .field-checkbox,
+    .field-radio {
+      position: relative;
+      z-index: 3;
+      padding: rem-calc(8) 0;
+
+      .custom-checkbox,
+      .custom-radio {
+        position: relative;
+        z-index: 2;
+      }
+
+      .checkbox-item,
+      .radio-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        border-radius: rem-calc(4);
+        padding: rem-calc(12);
+        //margin: 0 rem-calc(4);
+        outline: 0;
+        border: solid rem-calc(2) transparent;
+        border-top: 0;
+        border-bottom: 0;
+        //border-left: 0;
+        //border-right: 0;
+
+        @include set-breakpoint(smartphone, down) {
+          margin: 0;
+        }
+
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          margin-top: rem-calc(2);
+          transition: all 0s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+        }
+
+        &::before {
+          opacity: 0.2;
+          background-size: rem-calc(5) rem-calc(5);
+          background-image: linear-gradient(45deg, transparent 45%, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 1) 55%, transparent 0);
+        }
+
+        &::after {
+          inset: 0;
+          background: $white;
+          opacity: 1;
+        }
+
+        &:hover {
+          &::after {
+            inset: rem-calc(4);
+            opacity: 1;
+          }
+        }
+
+        &:focus {
+          border: solid rem-calc(2) $app-field-border;
+          border-top: 0;
+          border-bottom: 0;
+          //border-left: 0;
+          //border-right: 0;
+        }
+
+        &.checked,
+        &:focus {
+          &::after {
+            inset: rem-calc(4);
+            opacity: 0.6;
+          }
+        }
+      }
+    }
+  }
+
+  .radio-wrapper,
+  .checkbox-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: rem-calc(6);
+
+    @include set-breakpoint(laptop, down) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @include set-breakpoint(smartphone, down) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include set-breakpoint(mobile, down) {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  }
+
+
+  .field-checkbox,
+  .field-radio {
+    padding: 0 rem-calc(6);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    h1, h2, h3, h4, h5, h6, p, span, label {
+      grid-column: 1/-1;
+    }
+
+    &.checkbox-single,
+    &.radio-single {
+      //
+    }
+  }
+
+  .custom-checkbox,
+  .custom-radio {
+    display: initial;
+
+    > span {
+      position: relative;
+      top: rem-calc(2);
+      left: rem-calc(4);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .checkbox,
+  .radio {
+    $gutter: rem-calc(12);
+    display: inline-block;
+    width: 100%;
+
+    &.in-type {
+      width: auto;
+      margin-right: $gutter / 2;
+    }
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    opacity: 0;
+    float: left;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    cursor: pointer;
+    inset: 0;
+
+    &:before,
+    &:after {
+      z-index: 3;
+    }
+
+    + label {
+      clear: none;
+      cursor: pointer;
+      display: block;
+      line-height: rem-calc(22);
+      margin: 0;
+      padding-left: rem-calc(48);
+      position: relative;
+
+      :not(input[type='checkbox']) {
+        &:before,
+        &:after {
+          border-radius: 50%;
+        }
+      }
+
+      // Input border.
+      &:before {
+        border: rem-calc(2) solid $app-field-border;
+        border-radius: $app-field-border-radius;
+        content: '';
+        left: 0;
+        position: absolute;
+        top: 0;
+        transition: all .2s ease;
+        width: rem-calc(24);
+        height: rem-calc(24);
+      }
+
+      // Input onSelected.
+      &:after {
+        background: transparent;
+        border-radius: rem-calc(2);
+        position: absolute;
+        content: "";
+        left: rem-calc(5);
+        top: rem-calc(5);
+        transform: scale(0.01);
+        transition: all 0.1s ease;
+        width: rem-calc(14);
+        height: rem-calc(14);
+
+      }
+    }
+
+    &:focus {
+      + label {
+        &:before {
+          border-color: $app-field-border;
+        }
+      }
+    }
+
+    &:checked {
+      + label {
+        &:after {
+          background: $app-field-border-focus;
+          transform: scale(1);
+        }
+      }
+    }
+  }
+
+  input[type="radio"] {
+    + label {
+      &:before,
+      &:after {
+        border-radius: 50%;
+      }
+    }
+  }
+}

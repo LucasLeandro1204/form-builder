@@ -1,0 +1,50 @@
+{
+  "name": "form-builder",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@formvuelate/plugin-vee-validate": "^3.6.4",
+    "@xstate/inspect": "^0.3.0",
+    "@xstate/test": "^0.4.2",
+    "@xstate/vue": "^0.8.1",
+    "formvuelate": "^3.6.4",
+    "lodash": "^4.17.21",
+    "nanoid": "^3.1.30",
+    "vee-validate": "^4.5.2",
+    "vue": "3.2.20",
+    "xstate": "^4.25.0",
+    "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.175",
+    "@types/node": "^16.10.3",
+    "@types/set-interval-async": "^1.0.0",
+    "@vitejs/plugin-vue": "^1.9.3",
+    "@vue/test-utils": "^2.0.0-rc.16",
+    "sass": "^1.43.2",
+    "typescript": "^4.4.3",
+    "vite": "^2.6.4",
+    "vue-tsc": "^0.3.0"
+  },
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maikeleckelboom/form-builder.git"
+  },
+  "keywords": [
+    "form builder",
+    "vue script setup",
+    "xstate"
+  ],
+  "author": "Maikel Eckelboom",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maikeleckelboom/form-builder/issues"
+  },
+  "homepage": "https://github.com/maikeleckelboom/form-builder#readme"
+}

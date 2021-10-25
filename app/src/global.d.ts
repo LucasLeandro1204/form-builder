@@ -1,0 +1,5 @@
+declare module '*';
+
+interface Layout {
+
+}

@@ -1,0 +1,188 @@
+@import "../../abstracts/index";
+
+input,
+input[type='text'],
+input[type='password'],
+input[type='submit'],
+input[type='reset'],
+input[type='radio'],
+input[type='checkbox'],
+input[type='button'],
+input[type='image'],
+input[type='date'],
+input[type='datetime-local'],
+input[type='email'],
+input[type='month'],
+input[type='number'],
+input[type='url'],
+input[type='week'],
+input[type='search'],
+input[type='tel'],
+input[type='color'],
+input[type='color']::after,
+input[type='file'],
+input[type='file']::before,
+textarea,
+select {
+  outline: none;
+  padding-right: rem-calc(40);
+
+  :focus,
+  .focused & {
+    //
+  }
+
+  .valid &,
+  .success & {
+    //border-color: var(--success-color)
+  }
+
+  .valid.focused & {
+    //
+  }
+
+  .invalid &,
+  .has-error & {
+    border-color: $app-field-border-invalid;
+
+    //:not(.disabled, .animation-disabled) {
+    //  animation-name: shake;
+    //  animation-duration: 800ms;
+    //}
+  }
+
+  .has-error.focused &,
+  .invalid.focused & {
+    border-color: lighten($app-field-border-invalid, 10%);
+  }
+
+  .touched & {
+  }
+
+  .pristine & {
+  }
+
+  .validated & {
+  }
+
+  .required & {
+  }
+
+  .passed & {
+  }
+}
+
+input,
+select,
+textarea {
+  :not([type='checkbox']),
+  :not([type='radio']) {
+    @include appearence-none;
+  }
+}
+
+input,
+select,
+textarea,
+datalist {
+  box-sizing: border-box;
+  background: none;
+  width: 100%;
+  font-size: rem-calc(16);
+  font-family: $app-font-family;
+  transition: $app-field-transition-easing $app-field-transition-property $app-field-transition-duration;
+  box-shadow: none;
+  display: flex;
+  position: relative;
+  z-index: 1;
+  opacity: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: rem-calc(38);
+  @include app-field-border;
+  margin: 0;
+
+  &::before,
+  &::after {
+    box-sizing: border-box;
+  }
+
+  &:not(textarea) {
+    height: rem-calc(45);
+  }
+}
+
+
+.smart-placeholder {
+  $border-radius: rem-calc(2);
+  display: flex;
+  font-size: rem-calc(14.2);
+  font-weight: $app-font-bold;
+  letter-spacing: rem-calc(0.5);
+  line-height: 1;
+  padding: rem-calc(6) rem-calc(8);
+  position: absolute;
+  transition: all 180ms ease;
+  width: max-content;
+  z-index: 29;
+  background: $white;
+  border-bottom-left-radius: $border-radius;
+  border-bottom-right-radius: $border-radius;
+  left: rem-calc(8);
+  color: lighten($app-black, 5%);
+  pointer-events: none;
+  opacity: 0;
+  top: 0;
+  text-transform: capitalize;
+
+  @include set-breakpoint(smartphone, down) {
+    max-width: rem-calc(160);
+  }
+
+  @include set-breakpoint(mobile, down) {
+    max-width: rem-calc(145);
+  }
+
+  .focused &,
+  .readonly &,
+  .active &,
+  .label-visible & {
+    opacity: 1;
+    z-index: 9;
+    top: rem-calc(-22);
+    left: rem-calc(10);
+  }
+
+  .label-text {
+
+  }
+}
+
+input[name='password'],
+input[name='password_confirmation'],
+input[name='confirmation_password'],
+input[name='confirm_password'],
+input[name='password_confirm'] {
+  text-transform: initial;
+}
+
+input[disabled='disabled'],
+.input.disabled {
+  opacity: 0.5;
+
+  .read-only &,
+  .readonly & {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: rem-calc(68);
+  }
+}
+
+.control {
+  position: relative;
+
+  &.focused {
+
+  }
+}
+

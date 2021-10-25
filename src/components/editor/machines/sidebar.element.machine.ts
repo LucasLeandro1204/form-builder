@@ -8,22 +8,16 @@ interface Context {
     startY: number;
 }
 
-interface ParentContext {
+interface DraggableObserverContext {
     startX: number;
     startY: number;
 }
 
-type ParentEvent = PointerEvent;
+type DraggableObserverEvent = PointerEvent;
 
-type ParentState =
+type DraggableObserverState  =
     | { value: "idle"; context: Context }
     | { value: "dragging"; context: Context };
-
-interface SendPipelineEvent {
-    type: string,
-    originalEvent: Event,
-    originalContext: Object,
-}
 
 const dragData = (_: unknown, event: PointerEvent) => ({
     element: event.target as HTMLElement,
@@ -32,13 +26,13 @@ const dragData = (_: unknown, event: PointerEvent) => ({
     startY: event.clientY,
 })
 
-const sendPipelineEvent = (type, context, event): SendPipelineEvent => ({
+const sendEvent = (type: string, context: object, event: any) => ({
     type: type,
     originalEvent: event,
     originalContext: context
 })
 
-export const draggableObserverMachine = createMachine<ParentContext, ParentEvent, ParentState>(
+export const draggableObserverMachine = createMachine<DraggableObserverContext, DraggableObserverEvent, DraggableObserverState>(
     {
         id: "drag-observer",
         initial: "idle",
@@ -60,18 +54,18 @@ export const draggableObserverMachine = createMachine<ParentContext, ParentEvent
                     onDone: 'idle',
                 },
                 on: {
-                    pointerContext: {
+                    DELEGATE_POINTER_EVENTS: {
                         actions: [
-                            () => console.log('pointerContext - draggable.observer.machine'),
                             actions.sendParent(
-                                (context, event) => sendPipelineEvent('pointerContext', context, event)),
+                                (context, event) =>
+                                    sendEvent('DELEGATE_POINTER_EVENTS', context, event)),
                         ]
                     },
-                    dropped: {
+                    DROPPED: {
                         actions: [
-                            () => console.log('dropped - draggable.observer.machine'),
                             actions.sendParent(
-                                (context, event) => sendPipelineEvent('dropped', context, event)),
+                                (context, event) =>
+                                    sendEvent('DROPPED', context, event)),
                         ]
                     },
                 },

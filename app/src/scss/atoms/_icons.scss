@@ -1,0 +1,60 @@
+@import "../abstracts/index";
+
+.icon-container {
+  &:hover {
+    .icon {
+      cursor: pointer;
+      opacity: 1;
+    }
+  }
+}
+
+.icon {
+  position: relative;
+
+  .section-heading & {
+    opacity: 0.4;
+    transition: ease-in all 180ms;
+  }
+}
+
+.icon-help-text {
+  height: rem-calc(32);
+}
+
+.icon-info,
+.input-icon {
+  height: rem-calc(18);
+  width: rem-calc(18);
+}
+
+.icon-invalid {
+  height: rem-calc(18);
+  width: rem-calc(18);
+}
+
+.input-icon-parent {
+  position: absolute;
+  top: 50%;
+  right: rem-calc(18);
+  transform: translate(0, -50%);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  z-index: 2;
+
+  &:hover {
+    .input-icon {
+      opacity: 1;
+    }
+  }
+
+  .input-icon {
+    height: rem-calc(18);
+    width: rem-calc(18);
+    opacity: 0.4;
+    transition: ease-in all 180ms;
+  }
+}
+
+

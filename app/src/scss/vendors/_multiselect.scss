@@ -1,0 +1,145 @@
+@import '../abstracts';
+
+.multiselect__tags {
+  .invalid & {
+    border-color: $dark-red;
+  }
+}
+
+.multiselect__tag {
+  background-color: #bfbfbf;
+}
+
+.multiselect {
+  height: rem-calc(50);
+  position: relative;
+  cursor: pointer;
+
+  .multiselect__tag-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 4px;
+  }
+
+  .multiselect__placeholder {
+    transition: none;
+    color: #35495e;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+
+  &::after {
+    border-left: rem-calc(3) solid transparent;
+    border-right: rem-calc(3) solid transparent;
+    border-top: rem-calc(5) solid #c7cad7;
+    content: '';
+    height: 0;
+    position: absolute;
+    right: rem-calc(22);
+    top: rem-calc(20);
+    transition: none;
+    width: 0;
+  }
+
+  .multiselect__select {
+    height: 100%;
+    width: rem-calc(50);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &::before {
+      display: none;
+      top: 0;
+    }
+  }
+
+  &.multiselect--active {
+    transition: none;
+
+    &.multiple {
+      input.multiselect__input {
+
+        &.populated {
+          display: none;
+        }
+      }
+    }
+
+    input.multiselect__input {
+      border-top: rem-calc(1) #c7cad7 solid;
+      border-radius: 0;
+      transition: none;
+    }
+
+    .multiselect__select {
+      // Toggle Caret Square
+    }
+
+    .multiselect__tags {
+      border-bottom: none;
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+      z-index: 30;
+    }
+    // closing multiselect--active
+  }
+
+  .multiselect__content-wrapper {
+    border: rem-calc(2) solid #c7cad7;
+    border-top-color: transparent;
+    margin: 0;
+    z-index: 20;
+    transition: none;
+  }
+
+  .multiselect__tags-wrap {
+    height: 100%;
+  }
+
+  .multiselect__tags {
+    height: rem-calc(45);
+    text-align: left;
+    border: rem-calc(2) solid #c7cad7;
+    text-shadow: rem-calc(0.2) 0 0 currentColor;
+    position: relative;
+    border-radius: rem-calc(3);
+    font-size: rem-calc(16);
+    padding-top: 0;
+
+    .multiselect__tag {
+      margin-top: 0;
+      margin-bottom: 0;
+      top: 50%;
+      transform: translate(0, -50%);
+    }
+
+    p, strong {
+      font-weight: 500;
+
+      &:first-letter {
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  .multiselect__single {
+    margin: 0;
+    top: 50%;
+    transform: translate(0, -50%);
+
+    strong, p {
+      display: flex;
+      height: rem-calc(22);
+      align-items: center;
+      padding-top: rem-calc(2);
+    }
+
+    p {
+      padding-top: rem-calc(2);
+    }
+  }
+}

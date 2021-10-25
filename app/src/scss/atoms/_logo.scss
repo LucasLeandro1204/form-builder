@@ -1,0 +1,26 @@
+@import "../abstracts";
+
+.app-logo,
+.app-logo-xsm,
+.app-logo-slogan,
+.app-logo-slogan-only {
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.app-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: rem-calc(104);
+  max-width: rem-calc(118);
+  height: rem-calc(29.35);
+}
+
+.app-logo-slogan-only {
+  width: 100%;
+  max-width: rem-calc(200);
+  min-width: rem-calc(176);
+  padding: rem-calc(12);
+  margin-top: rem-calc(4);
+}
+

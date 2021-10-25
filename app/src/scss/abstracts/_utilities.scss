@@ -1,0 +1,51 @@
+@import "variables";
+
+.clickable {
+  cursor: pointer;
+}
+
+.space-between {
+  display: flex;
+  justify-content: space-between;
+}
+
+.no-wrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: rem-calc(128);
+}
+
+.sub-text {
+  font-size: rem-calc(15);
+  color: lighten($app-black, 25%);
+}
+
+.invisible {
+  opacity: 0;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.centered {
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.text-block-center {
+  margin: 0 auto;
+  text-align: center;
+}
