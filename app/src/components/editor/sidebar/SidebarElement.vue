@@ -8,7 +8,9 @@ const props = defineProps({
   element: {
     type: Object,
     required: true,
-    ref: {}
+    ref: {
+      id: 0,
+    }
   },
 })
 
@@ -17,7 +19,7 @@ const {state, send} = useActor(props.element.ref)
 const current = ref(state.value)
 
 onMounted(() => {
-  const draggableElement = document.getElementById(`draggable-${uuid}`)
+  const draggableElement = document.getElementById(`sidebar-element-${uuid}`)
 
   watch(state, (currentState) => {
     if (currentState.changed) {
@@ -33,28 +35,34 @@ onMounted(() => {
 
 <template>
   <a class="editor-sidebar-element-option block-outset"
-     :id="`draggable-${uuid}`"
-     :class="element.text"
-     :data-type="element.text.toLowerCase()">
+     :id="`sidebar-element-${uuid}`"
+     :class="element.as"
+     :data-type="element.as.toLowerCase()">
     <img :src="element.icon"
          class="editor-element-icon"
-         :class="element.text.toLowerCase()"
+         :class="element.as.toLowerCase()"
          alt=""/>
-    <span class="option-text">{{ element.text }}</span>
+    <span class="option-text">{{ element.label }}</span>
   </a>
 </template>
 
 <style lang="scss" scoped>
-@import "./src/scss/abstracts/index";
-
+@import "./src/scss/abstracts";
 
 .editor-sidebar-element .editor-sidebar-element-option {
-  --draggingX: 0;
-  --draggingY: 0;
-  transform: translate(calc(var(--draggingX) * 1px), calc(var(--draggingY) * 1px));
+  --deltaX: 1em;
+  --deltaY: 1em;
+  transform: translate(calc(var(--deltaX) * 1px), calc(var(--deltaY) * 1px)), translateZ(0);
   transition: transform 0.25s cubic-bezier(0.7, 0, 0.3, 1);
   cursor: grab;
   z-index: 199;
+  height: rem-calc(50);
+
+  // Performance optimizations
+  outline: 1px solid transparent;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+  contain: layout;
 
   .editor-element-icon {
     $size: rem-calc(20);
@@ -66,15 +74,17 @@ onMounted(() => {
     content: '';
     inset: 0;
     position: absolute;
-    width: 100%;
-    height: 100%;
-    border: solid rem-calc(1) transparent;
-    border-radius: rem-calc(4);
+    border: solid rem-calc(2) transparent;
+    width: 105%;
+    height: 105%;
+    left: -2.5%;
+    top: -2.5%;
+    border-radius: rem-calc(6);
     transition: border linear 60ms;
   }
 
   &[data-state~="dragging"] {
-    transform: translate(calc(var(--draggingX) * 1px), calc(var(--draggingY) * 1px)) scale(0.9) rotate(-10deg);
+    //transform: translate(calc(var(--deltaX) * 1px), calc(var(--deltaY) * 1px)) scale(0.9) rotate(-10deg);
     transition: none;
     cursor: grabbing;
 
@@ -91,7 +101,7 @@ onMounted(() => {
   }
 
   &[data-state="dropped"] {
-    transform: translate(calc(var(--draggingX) * 1px), calc(var(--draggingY) * 1px)) scale(0);
+    //transform: translate(calc(var(--deltaX) * 1px), calc(var(--deltaY) * 1px)) scale(0);
   }
 
   &[data-state~="dragging"],
@@ -116,9 +126,9 @@ onMounted(() => {
 //}
 
 
-[data-state="dropped"] {
-  .file {
-    transform: translate(calc(var(--draggingX) * 1px), calc(var(--draggingY) * 1px)) scale(0);
-  }
-}
+//[data-state="dropped"] {
+//  .file {
+//    transform: translate(calc(var(--draggingX) * 1px), calc(var(--draggingY) * 1px)) scale(0);
+//  }
+//}
 </style>

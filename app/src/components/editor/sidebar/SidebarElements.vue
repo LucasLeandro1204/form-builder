@@ -30,3 +30,11 @@ const legend = ref(props.component.legend)
     </div>
   </fieldset>
 </template>
+
+<style lang="scss">
+@import "src/scss/abstracts";
+
+.editor-sidebar-element-legend {
+  pointer-events: none;
+}
+</style>

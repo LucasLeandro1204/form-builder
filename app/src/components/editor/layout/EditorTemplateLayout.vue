@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
+import {computed, onBeforeUpdate, onMounted, ref, unref, watch} from "vue";
 import {useActor} from "@xstate/vue";
 import {ActorRef} from "xstate";
 
@@ -22,24 +22,38 @@ watch(state, (state) => {
     console.log('@detect-change', state.value, state.context)
   }
 })
+
+const rows = ref([])
+const columns = ref([])
+const components = ref([])
+
+const log = (event) => {
+  console.log('log', event)
+}
 </script>
 
 <template>
   <Row v-for="(row, index) in layout"
        :key="index"
        :data-position="index"
-       :row-index="index">
+       :row-index="index"
+       :id="`row-${row.id}`"
+       ref="rows">
     <Column v-for="(column, idx) in row.children" :key="idx"
             :data-position="`${index}-${idx}`"
             :row-index="index"
-            :column-index="idx">
+            :column-index="idx"
+            :id="`column-${column.id}`"
+            ref="columns">
       <Component v-for="(component, i) in column.children" :key="i"
                  :data-position="`${index}-${idx}-${i}`"
                  :component-props="component"
                  :index="i"
                  :row-index="index"
                  :column-index="idx"
-                 :component-index="i"/>
+                 :component-index="i"
+                 :id="`component-${component.id}`"
+                 ref="components"/>
     </Column>
   </Row>
 </template>
@@ -78,7 +92,6 @@ watch(state, (state) => {
 
 .draggable-row {
   z-index: 49;
-  //padding: rem-calc(12) 0;
 
   display: flex;
   flex-direction: column;
@@ -97,11 +110,7 @@ watch(state, (state) => {
   z-index: 99;
   position: relative;
   display: flex;
-  padding: 0 rem-calc(12);
-  &:last-child,
-  &:first-child {
-    padding: 0;
-  }
+
   .column-inset-block {
 
   }
@@ -109,12 +118,6 @@ watch(state, (state) => {
 
 .draggable-component {
   z-index: 199;
-  padding: rem-calc(12);
-
-  &:first-child,
-  &:last-child {
-    padding: 0;
-  }
 
   .component-inset-block {
 
@@ -145,7 +148,6 @@ watch(state, (state) => {
     width: 100%;
     display: flex;
     flex-flow: row nowrap;
-    padding: rem-calc(12) 0;
   }
 
   .column-inset-block {
@@ -155,12 +157,8 @@ watch(state, (state) => {
     flex-direction: column;
 
     .draggable-component {
-      padding: rem-calc(12);
-
-      &:last-child,
-      &:first-child {
-        padding-bottom: 0;
-        padding-top: 0;
+      &:nth-child(n+2) {
+        padding-top: rem-calc(12);
       }
     }
   }
@@ -186,14 +184,12 @@ watch(state, (state) => {
   &.bottom-block {
     height: rem-calc(24);
     width: 100%;
-    //background: #20df7e;
   }
 
   &.right-block,
   &.left-block {
     height: 100%;
     width: rem-calc(24);
-    //background: #f1eb7b;
   }
 
   &.top-block {

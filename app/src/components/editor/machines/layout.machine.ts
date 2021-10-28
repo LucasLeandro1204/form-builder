@@ -19,6 +19,7 @@ const toComponentName = (as) => {
         'checklist': () => component = 'FormChecklist',
         'select': () => component = 'FormSelect',
         'section': () => component = `SchemaForm`,
+        '': () => component = '',
         'default': () => component = `${as}`
     }
     return (componentMap[as] || componentMap['default'])()
@@ -42,70 +43,9 @@ const createColumnElement = (element, placeholder) => ({
 
 const createComponentElement = (element, placeholder) => ({
     id: nanoid(),
-    as: COMPONENT,
-    ...createElement(element, placeholder),
+    as: 'placeholder',
+    label: element.label,
 })
-
-
-const createElement = ({as, placeholder}) => {
-    const properties = {
-        label: capitalize(as),
-        model: as?.length ? toCamelCaseString(as) : '',
-        component: toComponentName(as),
-        placeholder: !!placeholder,
-    }
-    return addProperties({as, properties})
-}
-
-const addProperties = ({as, properties}) => {
-    switch (as) {
-        case 'section':
-            properties = {...properties, schema: []}
-            break;
-        case 'select':
-            properties = {...properties, options: []}
-            break;
-        default:
-            properties = {
-                ...properties,
-                config: {
-                    placeholder: '',
-                    autocomplete: '',
-                    autocapitalize: '',
-                }
-            }
-    }
-    return {
-        ...properties,
-        value: '',
-        meta: {
-            focused: false,
-            disabled: false,
-        },
-    }
-}
-
-
-// const createPlaceholderElement = (currentPath = [], layout, element) => {
-//     let newPlaceholderElement
-//
-//     if (currentPath.length) {
-//         const [rowIndex, columnIndex, componentIndex] = currentPath
-//         switch (currentPath.length) {
-//             case 1:
-//                 layout.splice(rowIndex, 0, createRowElement(element))
-//                 break;
-//             case 2:
-//                 layout[rowIndex].children.splice(columnIndex, 0, createColumnElement(element))
-//                 break;
-//             case 3:
-//                 layout[rowIndex].children[columnIndex].children.splice(componentIndex, 0, createComponentElement(element))
-//                 break;
-//         }
-//     }
-//     return newPlaceholderElement
-// }
-
 
 const commitCreatePlaceholderElement = (currentPath = [], layout, element) => {
     if (currentPath.length) {
@@ -124,26 +64,10 @@ const commitCreatePlaceholderElement = (currentPath = [], layout, element) => {
     }
 }
 
-const pointerShiftStates = {
-    initial: 'active',
-    states: {
-        active: {
-            on: {
-                DELEGATE_POINTER_EVENT: {
-                    actions: [
-                        'respondPointerPath',
-                        'setPreviousPath',
-                    ],
-                },
-            },
-        },
-    }
-}
-
 
 interface LayoutContext {
     layout: Array<{ children: Array<{ children: Array<{}> }> }>;
-    previousPath: Array<[number, number, number]>
+    // previousPath: Array<[number, number, number]>
 }
 
 export const layoutMachine = createMachine<LayoutContext>({
@@ -151,7 +75,6 @@ export const layoutMachine = createMachine<LayoutContext>({
         initial: "loading",
         context: {
             layout: layout,
-            previousPath: []
         },
         states: {
             loading: {
@@ -161,16 +84,18 @@ export const layoutMachine = createMachine<LayoutContext>({
             ready: {
                 type: 'parallel',
                 states: {
-                    internal: {
+                    master: {
                         initial: 'idle',
                         states: {
-                            idle: {}
+                            idle: {
+                                on: {
+                                    pointerenter: {
+                                        actions: (ctx, evt) => console.log('pointerenter')
+                                    }
+                                },
+                            }
                         },
-                        on: {},
                     },
-                    external: {
-                        ...pointerShiftStates
-                    }
                 },
             },
         }
@@ -197,12 +122,12 @@ export const layoutMachine = createMachine<LayoutContext>({
                 }
             }),
 
-            resetPreviousPath: assign((context) => {
-                context.previousPath = []
-            }),
-            setPreviousPath: assign((context, event) => {
-                context.previousPath = event.originalEvent.originalEvent.originalEvent.pointerPath
-            }),
+            // resetPreviousPath: assign((context) => {
+            //     context.previousPath = []
+            // }),
+            // setPreviousPath: assign((context, event) => {
+            //     context.previousPath = event.originalEvent.originalEvent.originalEvent.pointerPath
+            // }),
             hydrateLayout: assign({
                 layout: (context) => context.layout.map(row => ({
                     ...row,

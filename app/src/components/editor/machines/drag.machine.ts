@@ -45,13 +45,11 @@ export const dragMachine = createMachine<DragContext, DragEvent, DragState>(
             dragging: {
                 invoke: [
                     {src: 'capturePointer'},
-                    {src: 'pointerService'},
                 ],
                 on: {
                     pointermove: {
                         cond: 'pointerMatches',
                         actions: [
-                            'preventDefault',
                             'setPointerContext',
                             'setPointerPath'
                         ]
@@ -60,19 +58,16 @@ export const dragMachine = createMachine<DragContext, DragEvent, DragState>(
                         {
                             cond: 'canDrop',
                             target: 'dropped',
-                            actions: [
-                                'preventDefault',
-                            ]
                         },
                         {
-                            target: 'cancel',
+                            target: 'canceled',
                         },
                     ],
-                    lostpointercapture: 'cancel',
-                    DELEGATE_POINTER_EVENT: [
+                    lostpointercapture: 'canceled',
+                    sendPointerEvent: [
                         {
                             cond: 'canDrop',
-                            actions: 'delegatePointerEvent',
+                            actions: 'sendPointerEvent',
                         }
                     ],
                 },
@@ -80,12 +75,11 @@ export const dragMachine = createMachine<DragContext, DragEvent, DragState>(
             dropped: {
                 type: 'final',
                 entry: [
-                    'preventDefault',
                     'sendDroppedEvent',
                     'setInitialPointerContext',
                 ],
             },
-            cancel: {
+            canceled: {
                 type: 'final',
                 entry: 'setInitialPointerContext',
             },
@@ -93,11 +87,9 @@ export const dragMachine = createMachine<DragContext, DragEvent, DragState>(
     },
     {
         actions: {
-            preventDefault: (context, event) => event.preventDefault(),
-            stopPropagation: (context, event) => event.stopPropagation(),
             setPointerContext: (context, event) => {
-                context.element.style.setProperty('--draggingX', `${event.clientX - context.startX}`)
-                context.element.style.setProperty('--draggingY', `${event.clientY - context.startY}`)
+                context.element.style.setProperty('--deltaX', `${event.clientX - context.startX}`)
+                context.element.style.setProperty('--deltaY', `${event.clientY - context.startY}`)
                 context.element.setAttribute('data-pointer-path', context.pointerPath)
             },
             setPointerPath: (context: DragContext, event: PointerEvent) => {
@@ -109,23 +101,21 @@ export const dragMachine = createMachine<DragContext, DragEvent, DragState>(
                 }
             },
             setInitialPointerContext: (context) => {
-                context.element.style.setProperty('--draggingX', '0')
-                context.element.style.setProperty('--draggingY', '0')
+                context.element.style.setProperty('--deltaX', '0')
+                context.element.style.setProperty('--deltaY', '0')
                 context.element.setAttribute('data-pointer-path', ``)
                 context.pointerPath = []
             },
-            delegatePointerEvent: actions.sendParent(
-                (context: DragContext) => sendEvent('DELEGATE_POINTER_EVENT', context)),
-            sendDroppedEvent: actions.sendParent(
-                (context: DragContext) => sendEvent('DROPPED', context)),
+            sendPointerEvent: actions.sendParent((context: DragContext) => sendEvent('DELEGATE_POINTER_EVENT', context)),
+            sendDroppedEvent: actions.sendParent((context: DragContext) => sendEvent('DROPPED', context)),
         },
         services: {
             capturePointer: (context) => (sendParent) => {
                 const handleEvent = (event: PointerEvent) => sendParent(event);
                 context.element.setPointerCapture(context.pointerId);
-                context.element.addEventListener("pointermove", handleEvent);
-                context.element.addEventListener("pointerup", handleEvent);
-                context.element.addEventListener('lostpointercapture', handleEvent);
+                context.element.addEventListener("pointermove", handleEvent, {passive: true});
+                context.element.addEventListener("pointerup", handleEvent, {passive: true});
+                context.element.addEventListener('lostpointercapture', handleEvent, {passive: true});
                 return () => {
                     context.element.releasePointerCapture(context.pointerId);
                     context.element.removeEventListener("pointermove", handleEvent);

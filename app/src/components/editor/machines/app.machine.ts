@@ -1,13 +1,9 @@
+// @ts-nocheck
 import {assign, createMachine, send, spawn} from 'xstate';
 import {sidebarMachine} from "./sidebar.machine";
 import {layoutMachine} from "./layout.machine";
 
-interface AppContext {
-    sidebar: object;
-    layout: object;
-}
-
-const delegatePointerConfig = {
+const pointerPipe = {
     initial: 'active',
     states: {
         active: {
@@ -57,7 +53,7 @@ export const appMachine = createMachine({
                 states: {
                     internal: {},
                     external: {
-                        ...delegatePointerConfig
+                        ...pointerPipe
                     }
                 },
             },

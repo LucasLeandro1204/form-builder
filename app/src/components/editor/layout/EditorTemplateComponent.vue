@@ -5,6 +5,7 @@ const interactive = inject('interactive')
 
 interface Component {
   id: number | string;
+  placeholder: boolean;
 }
 
 interface Props {
@@ -21,16 +22,15 @@ const columnNumber = ref((props.columnIndex + 1))
 const componentNumber = ref((props.componentIndex + 1))
 const component = ref(props.componentProps)
 
-const placeholderItem = !!component.value.placeholder
+const placeholderItem = props.componentProps.placeholder
 
 </script>
 
 <template>
-  <div class="draggable-component" draggable="true"
-       :class="placeholderItem ? 'placeholder-item' : ''">
+  <div class="draggable-component" draggable="true">
     <div v-if="!interactive" class="outset-block top-block"/>
     <div class="component-inset-block">
-      <span>Component {{ componentNumber }}</span>
+      <span>{{component.as}}</span>
     </div>
     <div v-if="!interactive" class="outset-block bottom-block"/>
   </div>
@@ -42,4 +42,5 @@ const placeholderItem = !!component.value.placeholder
 .placeholder-item {
   background: brown;
 }
+
 </style>

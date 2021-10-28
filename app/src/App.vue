@@ -46,6 +46,7 @@ $off-canvas-width-xsm: rem-calc(200);
   overflow: hidden;
   width: 100%;
 
+
   @include set-breakpoint(tablet, down) {
     grid-template-columns:$off-canvas-width-md 1fr;
   }

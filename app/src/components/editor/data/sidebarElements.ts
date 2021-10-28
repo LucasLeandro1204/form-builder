@@ -7,30 +7,30 @@ const {
 } = icons
 
 type Element = {
-    text: string;
     as: string;
+    label: string;
     icon: URL;
 }
 
-interface SidebarComponents {
+interface SidebarElements {
     legend: string;
     type: string;
     elements: Array<Element>
 }
 
-export const sidebarComponents: Array<SidebarComponents> = [
+export const sidebarElements: Array<SidebarElements> = [
     {
         legend: 'layout elements',
         type: 'layout',
         elements: [
             {
-                text: 'section',
                 as: 'section',
+                label: 'section',
                 icon: sections,
             },
             {
-                text: 'table',
                 as: 'table',
+                label: 'table',
                 icon: table,
             },
         ]
@@ -40,17 +40,17 @@ export const sidebarComponents: Array<SidebarComponents> = [
         type: 'text',
         elements: [
             {
-                text: 'single line',
+                label: 'single line',
                 as: 'single line',
                 icon: singleline,
             },
             {
-                text: 'multiline',
+                label: 'multiline',
                 as: 'multiline',
                 icon: multiline,
             },
             {
-                text: 'number',
+                label: 'number',
                 as: 'single line',
                 icon: numbers,
             },
@@ -61,12 +61,12 @@ export const sidebarComponents: Array<SidebarComponents> = [
         type: 'date',
         elements: [
             {
-                text: 'date',
+                label: 'date',
                 icon: date,
                 as: 'date',
             },
             {
-                text: 'date & time',
+                label: 'date & time',
                 icon: datetime,
                 as: 'datetime',
 
@@ -79,22 +79,22 @@ export const sidebarComponents: Array<SidebarComponents> = [
         elements: [
             {
                 as: 'switch',
-                text: 'yes / no',
+                label: 'yes / no',
                 icon: switchOutline,
             },
             {
                 as: 'dropdown',
-                text: 'dropdown',
+                label: 'dropdown',
                 icon: dropdown,
             },
             {
                 as: 'checkbox',
-                text: 'checkbox',
+                label: 'checkbox',
                 icon: checklist,
             },
             {
                 as: 'checklist',
-                text: 'checklist',
+                label: 'checklist',
                 icon: checklist,
             },
         ]
@@ -105,17 +105,17 @@ export const sidebarComponents: Array<SidebarComponents> = [
         elements: [
             {
                 as: 'attachment',
-                text: 'attachments',
+                label: 'attachments',
                 icon: attachments,
             },
             {
                 as: 'image',
-                text: 'image',
+                label: 'image',
                 icon: image,
             },
             {
                 as: 'slider',
-                text: 'slider',
+                label: 'slider',
                 icon: slider,
             },
         ]
