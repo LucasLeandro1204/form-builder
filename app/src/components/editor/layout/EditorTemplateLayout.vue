@@ -23,11 +23,18 @@ watch(state, (state) => {
   }
 })
 
+// const rect = el => el.getBoundingClientRect();
+//
+// const rectCenter = el => {
+//   const elRect = rect(el);
+//   return [elRect.left + elRect.width / 2, elRect.top + elRect.height / 2];
+// };
+//
 const rows = ref([])
 const columns = ref([])
 const components = ref([])
 
-const log = (event) => {
+const log = (event: any) => {
   console.log('log', event)
 }
 </script>
@@ -96,10 +103,6 @@ const log = (event) => {
   display: flex;
   flex-direction: column;
 
-  > span {
-    padding: 18px;
-    font-weight: 500;
-  }
 
   .row-inset-block {
 
@@ -110,6 +113,7 @@ const log = (event) => {
   z-index: 99;
   position: relative;
   display: flex;
+  flex-direction: column;
 
   .column-inset-block {
 
@@ -130,6 +134,11 @@ const log = (event) => {
   position: relative;
   overflow: hidden;
   width: 100%;
+
+  > span {
+    padding: 18px;
+    font-weight: 500;
+  }
 
   .component-inset-block,
   .column-inset-block,

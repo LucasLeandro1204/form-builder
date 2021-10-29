@@ -1,7 +1,7 @@
 // @ts-nocheck
 import {createMachine, assign, spawn, actions, send} from 'xstate'
 import {sidebarElements as components} from "../data/sidebarElements";
-import {elementDraggingMachine} from "@/components/editor/machines/elementDraggingMachine";
+import {sidebarElementMachine} from "@/components/editor/machines/sidebarElementMachine";
 
 export const sidebarMachine = createMachine({
     id: 'sidebar',
@@ -17,7 +17,7 @@ export const sidebarMachine = createMachine({
                     ...component,
                     elements: component.elements.map(element => ({
                         ...element,
-                        ref: spawn(elementDraggingMachine)
+                        ref: spawn(sidebarElementMachine)
                     }))
                 }))
             })

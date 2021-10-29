@@ -8,6 +8,8 @@ const props = defineProps<{
 
 const rowIndex = ref(props.rowIndex)
 const columnIndex = ref(props.columnIndex)
+const rowNumber = ref((props.rowIndex + 1))
+const columnNumber = ref((props.rowIndex + 1))
 
 const interactive = inject('interactive')
 
@@ -15,6 +17,7 @@ const interactive = inject('interactive')
 
 <template>
   <div class="draggable-column" draggable="true">
+    <span>Column {{ columnNumber }}</span>
     <div v-if="!interactive" class="outset-block right-block"/>
     <div class="column-inset-block">
       <slot/>

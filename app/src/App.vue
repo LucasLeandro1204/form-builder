@@ -5,7 +5,7 @@ import Sidebar from '@/components/editor/sidebar/Sidebar.vue'
 import Layout from "@/components/editor/layout/Layout.vue";
 import {appMachine} from '@/components/editor/machines/app.machine'
 
-const devTools = false
+const devTools = true
 
 const service = interpret(appMachine, {devTools})
 
@@ -45,7 +45,6 @@ $off-canvas-width-xsm: rem-calc(200);
   background: #F9F9F9;
   overflow: hidden;
   width: 100%;
-
 
   @include set-breakpoint(tablet, down) {
     grid-template-columns:$off-canvas-width-md 1fr;
