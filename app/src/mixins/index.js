@@ -202,6 +202,7 @@ export function everythingBetween(array) {
 
 
 import * as yup from "yup";
+import {layout} from "../components/editor/data/layout.components";
 
 /**
  * Create Yup Schema at runtime
@@ -378,6 +379,16 @@ export function dataStateMutationObserver(elementSelector,) {
     observer.observe(app, {attributes: true})
 }
 
+/**
+ * Example of use
+ * const id = 999
+ * const hasChildren = layout.some(row => nodeWithIdHasChildren(row.children, 999))
+ * console.log(hasChildren)
+ *
+ * @param children
+ * @param id
+ * @returns {boolean|*}
+ */
 export function nodeWithIdHasChildren(children, id) {
     for (const child of children) {
         // If this child node matches supplied id, then check to see if
@@ -396,37 +407,39 @@ export function nodeWithIdHasChildren(children, id) {
     }
 }
 
+function removeLevelWithoutChildren(parent) {
+    if (!parent.children)
+        return;
+    let i = 0;
+    while (i < parent.children.length) {
+        const data = parent.children[i].data;
+        if (typeof data !== "undefined") {
+            // remove child - could save it in _children if you wanted to ever put it back
+            const child = parent.children.splice(i, 1);
+            // length of child list reduced, i points to the next child
+        } else {
+            // not a bye - recurse
+            removeLevelWithoutChildren(parent.children[i]);
+            // all the child's bye's are removed so go to the next child
+            i++;
+        }
+    }
+}
+
+
 /**
- * Lodash method executioner to flatten a deeply nested array of objects.
- *
+ * Custom filter method to flatten a deeply nested array of objects.
+ * - serves as an extension of lodash flatMapDeep
  * @param array
  * @returns {(*|unknown[])[]|*}
  */
 export const flattenNestedArray = (array) => {
     const member = {...array};
     delete member.children;
-    if (!array.children || !array.children.length) {
-        return member;
-    }
-    return [member, _.flatMapDeep(array.children, flattenNestedArray)];
+    return !array.children || !array.children.length
+        ? member
+        : [member, _.flatMapDeep(array.children, flattenNestedArray)];
 }
-
-
-export const randomNumber = () => {
-    const numbers = [...Array(90000).keys()].map(n => n + 10000);
-    let filteredNumbers = numbers;
-    let timeStamp = new Date().valueOf();
-    let rand = 0;
-    const currentTimeStamp = new Date().valueOf();
-    if (timeStamp === currentTimeStamp && rand !== 0) {
-        filteredNumbers = filteredNumbers.filter(n => n !== value)
-    } else {
-        timeStamp = currentTimeStamp;
-        filteredNumbers = numbers;
-    }
-    rand = filteredNumbers[Math.floor(Math.random() * filteredNumbers.length)];
-    return parseInt(new Date().valueOf() + "" + rand, 2);
-};
 
 export const findPath = (ob, key, value) => {
     const path = [];
@@ -461,3 +474,25 @@ export const addDataAttributes = (elements, state) =>
     elements.map(el => el.setAttribute('data-state', state))
 export const removeDataAttributes = (elements, state) =>
     elements.map(el => el.removeAttribute('data-state', state))
+
+
+/**
+ * Instead of describing the filters with arrays (or limited objects),
+ * just describe them with a function predicate.,See the docs and tests here: file-filterplainarray-js.,
+ * The signature of the filters arguments is the following:,
+ * In plain array i can easily modify that structure below:
+ * @param arr
+ * @param filters
+ * @returns {Object[]}
+ */
+export const multiFilter = (arr, filters) => {
+    const filterKeys = Object.keys(filters);
+    return arr.filter(eachObj => {
+        return filterKeys.every(eachKey => {
+            if (!filters[eachKey].length) {
+                return true; // passing an empty filter means that filter is ignored.
+            }
+            return filters[eachKey].includes(eachObj[eachKey]);
+        });
+    });
+};

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import {ref, inject, computed} from "vue";
+import {PSEUDO_COMPONENT, DROP_ZONE} from '@/constants';
 
 const interactive = inject('interactive')
 
 interface Component {
   id: number | string;
   placeholder: boolean;
+  type: string;
 }
 
 interface Props {
@@ -17,20 +19,16 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {})
 
-const rowNumber = ref((props.rowIndex + 1))
-const columnNumber = ref((props.columnIndex + 1))
-const componentNumber = ref((props.componentIndex + 1))
 const component = ref(props.componentProps)
-
-const placeholderItem = props.componentProps.placeholder
 
 </script>
 
 <template>
-  <div class="draggable-component" draggable="true">
+  <div class="draggable-component" draggable="true"
+       :class="{'pseudo-component': component.type === PSEUDO_COMPONENT}">
     <div v-if="!interactive" class="outset-block top-block"/>
     <div class="component-inset-block">
-      <span>{{component.as}}</span>
+      <span>{{ component.type }}</span>
     </div>
     <div v-if="!interactive" class="outset-block bottom-block"/>
   </div>
@@ -39,8 +37,5 @@ const placeholderItem = props.componentProps.placeholder
 <style lang="scss">
 @import "src/scss/abstracts";
 
-.placeholder-item {
-  background: brown;
-}
 
 </style>

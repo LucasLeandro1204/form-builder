@@ -28,8 +28,8 @@ onMounted(() => {
     }
   })
 
-  draggableElement.addEventListener("pointerdown", (event) => send(event))
-  draggableElement.addEventListener("pointerup", (event) => send(event))
+  draggableElement.addEventListener("pointerdown", (event) => send(event), {passive: true})
+  draggableElement.addEventListener("pointerup", (event) => send(event), {passive: true})
 })
 </script>
 

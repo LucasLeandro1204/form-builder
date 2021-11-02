@@ -97,10 +97,7 @@ const dragAndDropMachine = createMachine<DragAndDropMachineContext,
                 const newDataList = [...context.dataList];
 
                 newDataList.splice(context.itemBeingHeld.startIndex, 1);
-                newDataList.splice(
-                    context.itemBeingHeld.currentIndex,
-                    0,
-                    context.dataList[context.itemBeingHeld.startIndex],
+                newDataList.splice(context.itemBeingHeld.currentIndex, 0, context.dataList[context.itemBeingHeld.startIndex],
                 );
                 return {
                     dataList: newDataList,

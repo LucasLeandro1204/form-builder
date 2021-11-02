@@ -31,7 +31,13 @@ onMounted(() => {
     .draggable-row {
       .draggable-column {
         .draggable-component {
-          background: #21a67a;
+          &.drop-zone {
+            background: #21a67a;
+          }
+
+          &.pseudo-component {
+            background: coral;
+          }
         }
       }
     }

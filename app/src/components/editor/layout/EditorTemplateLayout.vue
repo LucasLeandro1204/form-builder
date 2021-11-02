@@ -2,6 +2,7 @@
 import {computed, onBeforeUpdate, onMounted, ref, unref, watch} from "vue";
 import {useActor} from "@xstate/vue";
 import {ActorRef} from "xstate";
+import {addDataAttributes} from '@/mixins'
 
 const props = defineProps<{
   actorRef: ActorRef<any>;
@@ -10,33 +11,31 @@ const props = defineProps<{
 import Row from "@/components/editor/layout/EditorTemplateRow.vue";
 import Column from "@/components/editor/layout/EditorTemplateColumn.vue";
 import Component from "@/components/editor/layout/EditorTemplateComponent.vue";
+import {PSEUDO_COMPONENT} from "@/constants";
 
 const {state, send} = useActor(props.actorRef)
 
 const current = ref(state.value)
 const layout = computed(() => state.value.context.layout)
 
-watch(state, (state) => {
-  if (state.changed) {
-    current.value = state.value
-    console.log('@detect-change', state.value, state.context)
-  }
+onMounted(() => {
+  watch(state, (state) => {
+    if (state.changed) {
+      current.value = state.value
+      addDataAttributes(
+          [document.querySelector('#app')],
+          `${state.toStrings()}`.split(',')
+      )
+      // console.log(state.value, state.context)
+    }
+  })
 })
 
-// const rect = el => el.getBoundingClientRect();
-//
-// const rectCenter = el => {
-//   const elRect = rect(el);
-//   return [elRect.left + elRect.width / 2, elRect.top + elRect.height / 2];
-// };
-//
+
 const rows = ref([])
 const columns = ref([])
 const components = ref([])
 
-const log = (event: any) => {
-  console.log('log', event)
-}
 </script>
 
 <template>
@@ -44,24 +43,28 @@ const log = (event: any) => {
        :key="index"
        :data-position="index"
        :row-index="index"
-       :id="`row-${row.id}`"
        ref="rows">
-    <Column v-for="(column, idx) in row.children" :key="idx"
-            :data-position="`${index}-${idx}`"
-            :row-index="index"
-            :column-index="idx"
-            :id="`column-${column.id}`"
-            ref="columns">
-      <Component v-for="(component, i) in column.children" :key="i"
-                 :data-position="`${index}-${idx}-${i}`"
-                 :component-props="component"
-                 :index="i"
-                 :row-index="index"
-                 :column-index="idx"
-                 :component-index="i"
-                 :id="`component-${component.id}`"
-                 ref="components"/>
-    </Column>
+    <div v-if="row.children && row.children.length">
+      <Column v-for="(column, idx) in row.children" :key="idx"
+              :data-position="`${index}-${idx}`"
+              :row-index="index"
+              :column-index="idx"
+              ref="columns">
+        <div v-if="column.children && column.children.length">
+          <Component v-for="(component, i) in column.children" :key="i"
+                     :data-position="`${index}-${idx}-${i}`"
+                     :component-props="component"
+                     :index="i"
+                     :row-index="index"
+                     :column-index="idx"
+                     :component-index="i"
+                     ref="components"/>
+        </div>
+      </Column>
+    </div>
+    <div v-else>
+      <h1>Empty :o</h1>
+    </div>
   </Row>
 </template>
 
@@ -71,6 +74,14 @@ const log = (event: any) => {
 .pen-strokes-vector {
   width: 100%;
   height: 100%;
+}
+
+.row-inset-block,
+.column-inset-block,
+.component-inset-block {
+  > div {
+    width: 100%;
+  }
 }
 
 .editor-template-layout {
@@ -89,7 +100,6 @@ const log = (event: any) => {
 
     .draggable-column {
 
-
       .draggable-component {
 
       }
@@ -99,21 +109,26 @@ const log = (event: any) => {
 
 .draggable-row {
   z-index: 49;
-
+  background: #457bb7;
   display: flex;
   flex-direction: column;
 
 
   .row-inset-block {
 
+
   }
 }
 
 .draggable-column {
   z-index: 99;
-  position: relative;
   display: flex;
   flex-direction: column;
+  background: rgba(241, 235, 123, 0.13);
+
+  //> * {
+  //  pointer-events: none;
+  //}
 
   .column-inset-block {
 
@@ -121,7 +136,7 @@ const log = (event: any) => {
 }
 
 .draggable-component {
-  z-index: 199;
+  //z-index: 199;
 
   .component-inset-block {
 
@@ -134,16 +149,17 @@ const log = (event: any) => {
   position: relative;
   overflow: hidden;
   width: 100%;
+  padding: rem-calc(24);
 
   > span {
     padding: 18px;
     font-weight: 500;
+    pointer-events: none;
   }
 
   .component-inset-block,
   .column-inset-block,
   .row-inset-block {
-    overflow: hidden;
     position: relative;
 
     span {
@@ -167,7 +183,7 @@ const log = (event: any) => {
 
     .draggable-component {
       &:nth-child(n+2) {
-        padding-top: rem-calc(12);
+        //padding-top: rem-calc(12);
       }
     }
   }
@@ -181,7 +197,7 @@ const log = (event: any) => {
     color: black;
     padding: 32px;
     text-align: center;
-    overflow: hidden;
+    //overflow: hidden;
   }
 }
 

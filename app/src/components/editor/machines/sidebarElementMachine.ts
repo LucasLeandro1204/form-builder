@@ -1,6 +1,8 @@
 // @ts-nocheck
-import {createMachine, assign, actions, send, sendParent} from "xstate";
+import {assign, createMachine, sendParent} from "xstate";
 import {isEqual, isNull} from 'lodash';
+import {nanoid} from "nanoid";
+import {elementsFromPoint} from "@/elementsFromPoint";
 
 const MIN_DIST = Math.pow(10, 2);
 
@@ -10,25 +12,31 @@ interface Context {
     element: Element | null;
     closestElement: Element | null;
     pointerId: number;
-    currentPointerPath: Array<number | string> | null
-    previousPointerPath: Array<number | string> | null
+    currentPointerPath: Array<number> | null;
+    previousPointerPath: Array<number> | null;
+    invocationId: number;
 }
 
-type Path = Array<number | string> | null
+export type Path = Array<number | string> | null
 
-interface IntersectionEvent {
+export interface IntersectionEvent {
     type: string;
     closestElement: Element | null,
     path: Path
 }
 
-interface DroppedEvent {
+export interface DroppedEvent {
     type: string;
     clientX: number;
     clientY: number;
     deltaX: number;
     deltaY: number;
     path: Path;
+    transform: string;
+}
+
+interface respondIntersectionEvent extends IntersectionEvent {
+    originalEvent: IntersectionEvent
 }
 
 type Event = PointerEvent;
@@ -39,9 +47,17 @@ type State =
     | { value: "canceled"; context: Context }
     | { value: "dropped"; context: Context };
 
+function closestElementFromPoint(event: PointerEvent) {
+    const closestElements = elementsFromPoint(event.clientX, event.clientY)
+    return closestElements.find(el => el.hasAttribute('data-position'))
+}
+
 function setCurrentPointerContext(context: Context, closestElement: Element) {
     context.closestElement = closestElement
-    context.currentPointerPath = Array.from(closestElement.getAttribute('data-position')!.split(`-`))
+    context.currentPointerPath = closestElement.getAttribute('data-position')!.split(`-`) || []
+    context.element?.setAttribute('data-current-path', context.currentPointerPath)
+    // console.log(context.currentPointerPath)
+    // console.log(context.currentPointerPath, context.closestElement)
 }
 
 function resetCurrentPointerContext(context: Context) {
@@ -57,15 +73,21 @@ const dragMachine = createMachine<Context, Event, State>(
             startY: 0,
             pointerId: 0,
             element: null,
-            closestElement: null,
-            currentPointerPath: null,
-            previousPointerPath: null,
+            closestElement: undefined,
+            currentPointerPath: undefined,
+            previousPointerPath: undefined,
+            transform: '',
         },
         invoke: {
             src: "capturePointer",
         },
         states: {
             init: {
+                entry: assign({
+                    closestElement: null,
+                    currentPointerPath: null,
+                    previousPointerPath: null,
+                }),
                 on: {
                     pointermove: {
                         target: 'dragging',
@@ -107,55 +129,74 @@ const dragMachine = createMachine<Context, Event, State>(
             },
             dropped: {
                 type: 'final',
-                entry: ['resetTransform', 'respondDropped'],
+                entry: [
+                    'resetTransform',
+                    'resetInvocationId',
+                    'respondDropped',
+                ],
             },
             canceled: {
                 type: 'final',
-                entry: 'resetTransform',
+                entry: [
+                    'resetTransform',
+                    'respondCanceled',
+                ],
             },
         },
     },
     {
         actions: {
-            updatePreviousPointerPath: actions.assign({
-                previousPointerPath: (context, event) => context.currentPointerPath
-            }),
-            updateCurrentPointerPath: (context, event: PointerEvent) => {
-                const elementsFromPoint = document.elementsFromPoint(event.clientX, event.clientY)
-                const closestElement = elementsFromPoint.find(el => el.hasAttribute('data-position'))
-                closestElement ? setCurrentPointerContext(context, closestElement) : resetCurrentPointerContext(context)
-            },
             updateTransform: (context: Context, event: Event) => requestAnimationFrame(() => context.element.style.transform =
                 `translate3d(${event.clientX - context.startX}px,${event.clientY - context.startY}px, 0px)`),
-            resetTransform: (context) => requestAnimationFrame(() =>
-                context.element.style.transform = context.transform),
-            respondIntersection: actions.sendParent((context: Context, event: IntersectionEvent) => ({
+            resetTransform: (context) => requestAnimationFrame(() => context.element.style.transform = context.transform),
+            updateCurrentPointerPath: (context, event: PointerEvent) => {
+                const closestElement = closestElementFromPoint(event);
+                closestElement
+                    ? setCurrentPointerContext(context, closestElement)
+                    : resetCurrentPointerContext(context)
+            },
+            updatePreviousPointerPath: assign({
+                previousPointerPath: (context) => context.currentPointerPath
+            }),
+            setInvocationId: assign({
+                invocationId: () => nanoid(6)
+            }),
+            resetInvocationId: assign({
+                invocationId: () => null
+            }),
+            respondIntersection: sendParent((context: Context, event: respondIntersectionEvent) => ({
                 type: "INTERSECTED",
+                originalEvent: event,
+                typeofElement: event.target.getAttribute('data-type'),
                 closestElement: context.closestElement,
-                path: context.currentPointerPath
+                path: context.currentPointerPath,
+                dragging: context.currentPointerPath?.length ? 'inside' : 'outside',
+                invocationId: context.invocationId,
             })),
-            respondDropped: actions.sendParent((context: Context, event: DroppedEvent) => ({
+            respondDropped: sendParent((context: Context, event: DroppedEvent) => ({
                 type: "DROPPED",
                 clientX: event.clientX,
                 clientY: event.clientY,
                 deltaX: event.clientX - context.startX,
                 deltaY: event.clientY - context.startY,
-                path: context.currentPointerPath
+                path: context.currentPointerPath,
+                dragging: context.currentPointerPath?.length ? 'inside' : 'outside',
+                invocationId: context.invocationId,
             })),
+            respondCanceled: () => console.log('respondCanceled')
         },
         services: {
-            capturePointer: (context: Context) => (sendParent) => {
-                // sendParent could be used directly, but this improves stack traces.
+            capturePointer: (context) => (sendParent) => {
                 const handleEvent = (event: PointerEvent) => sendParent(event);
                 context.element.setPointerCapture(context.pointerId);
                 context.element.addEventListener("pointermove", handleEvent);
                 context.element.addEventListener("pointerup", handleEvent);
-                context.element.addEventListener('lostpointercapture', handleEvent);
+                context.invocationId = nanoid(4);
                 return () => {
                     context.element.releasePointerCapture(context.pointerId);
                     context.element.removeEventListener("pointermove", handleEvent);
                     context.element.removeEventListener("pointerup", handleEvent);
-                    context.element.removeEventListener('lostpointercapture', handleEvent);
+                    context.invocationId = null;
                 };
             },
         },
@@ -172,6 +213,7 @@ const dragMachine = createMachine<Context, Event, State>(
         },
     }
 );
+
 
 function dragData(_: unknown, event: PointerEvent) {
     const element = event.target as HTMLElement;
@@ -221,36 +263,31 @@ export const sidebarElementMachine = createMachine<SidebarElementContext, Sideba
             },
             dragging: {
                 entry: assign({
-                    element: (context, event) => event.target
+                    element: (context, event) => event.target,
                 }),
                 invoke: {
                     id: "drag",
                     src: dragMachine,
                     data: dragData,
-                    onDone: {
-                        target: 'idle'
-                    },
+                    onDone: 'idle',
                 },
                 on: {
                     INTERSECTED: {
-                        internal: true,
-                        actions: [
-                            (ctx, evt) => console.log('INTERSECTED', evt)
-                        ],
+                        actions: sendParent((context: Context, event: IntersectionEvent) => event)
                     },
                     DROPPED: {
                         target: 'dropped',
-                        actions: [
-                            (ctx, evt) => console.log('DROPPED', evt)
-                        ]
                     },
                 },
             },
             dropped: {
-                actions: (context, event) => {
-                    context.deltaX += event.deltaX;
-                    context.deltaY += event.deltaY;
-                },
+                actions: [
+                    sendParent((context: Context, event: IntersectionEvent) => event),
+                    (context, event) => {
+                        context.deltaX += event.deltaX;
+                        context.deltaY += event.deltaY;
+                    }
+                ],
                 after: {
                     300: {
                         target: 'idle'
@@ -258,5 +295,9 @@ export const sidebarElementMachine = createMachine<SidebarElementContext, Sideba
                 }
             }
         },
+    }, {
+        actions: {
+            // ___
+        }
     }
 );

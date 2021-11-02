@@ -4,7 +4,13 @@ import {interpret} from "xstate";
 import Sidebar from '@/components/editor/sidebar/Sidebar.vue'
 import Layout from "@/components/editor/layout/Layout.vue";
 import {appMachine} from '@/components/editor/machines/app.machine'
+import MutationSequenceMachine from "@/components/editor/MutationSequenceMachine.vue";
 
+import {inspect} from '@xstate/inspect'
+
+inspect({
+  iframe: false,
+})
 const devTools = true
 
 const service = interpret(appMachine, {devTools})
@@ -12,18 +18,16 @@ const service = interpret(appMachine, {devTools})
 const {state, send} = service.start()
 
 const current = ref(state.context)
-
-onMounted(() => {
-  service.onTransition((state, event) => {
-    if (state.changed) {
-      current.value = state.context
-    }
-  })
+service.onTransition((state, event) => {
+  if (state.changed) {
+    current.value = state.context
+  }
 })
 </script>
 
 <template>
   <div class="editor-app-layout">
+    <!--    <MutationSequenceMachine/>-->
     <Sidebar :actor-ref="state.context.sidebar.ref"/>
     <Layout :actor-ref="state.context.layout.ref"/>
   </div>

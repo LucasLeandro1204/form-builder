@@ -15,7 +15,7 @@ const rowNumber = ref((props.rowIndex + 1))
 
 <template>
   <div class="draggable-row" draggable="true">
-    <span>Row {{ rowNumber }}</span>
+<!--    <span>Row {{ rowNumber }}</span>-->
     <div v-if="!interactive" class="outset-block top-block"/>
     <div class="row-inset-block">
       <slot/>
