@@ -38,6 +38,55 @@ export const layout: Array<RowLevel> = [
             }
         ]
     },
+    {
+        id: nanoid(),
+        type: ROW,
+        children: [
+            {
+                id: nanoid(),
+                type: COLUMN,
+                children: [
+                    // --> initial component
+                    {
+                        id: nanoid(),
+                        type: COMPONENT,
+                        as: 'FormText',
+                    },
+                    // initial component <--
+                ]
+            }
+        ]
+    },
+    {
+        id: nanoid(),
+        type: ROW,
+        children: [
+            {
+                id: nanoid(),
+                type: COLUMN,
+                children: [
+                    // --> initial component
+                    //
+                    // initial component <--
+                ]
+            }
+        ]
+    },
+    {
+        id: nanoid(),
+        type: ROW,
+        children: [
+            {
+                id: nanoid(),
+                type: COLUMN,
+                children: [
+                    // --> initial component
+                    //
+                    // initial component <--
+                ]
+            }
+        ]
+    },
 ]
 
 export const createElement = (as: string) => {

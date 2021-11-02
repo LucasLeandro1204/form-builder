@@ -7,27 +7,32 @@ import {appMachine} from '@/components/editor/machines/app.machine'
 import MutationSequenceMachine from "@/components/editor/MutationSequenceMachine.vue";
 
 import {inspect} from '@xstate/inspect'
+import {addDataAttributes} from "@/mixins";
 
-inspect({
-  iframe: false,
-})
-const devTools = true
+// inspect()
+const devTools = false
 
 const service = interpret(appMachine, {devTools})
 
 const {state, send} = service.start()
 
 const current = ref(state.context)
-service.onTransition((state, event) => {
-  if (state.changed) {
-    current.value = state.context
-  }
+
+onMounted(()=>{
+  const app = document.querySelector('#app')
+
+  service.onTransition((state, event) => {
+    if (state.changed) {
+      current.value = state.context
+      addDataAttributes(app, `${state.toStrings()}`.split(','))
+    }
+  })
 })
+
 </script>
 
 <template>
   <div class="editor-app-layout">
-    <!--    <MutationSequenceMachine/>-->
     <Sidebar :actor-ref="state.context.sidebar.ref"/>
     <Layout :actor-ref="state.context.layout.ref"/>
   </div>

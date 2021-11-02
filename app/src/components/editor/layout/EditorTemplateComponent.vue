@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {ref, inject, computed} from "vue";
 import {PSEUDO_COMPONENT, DROP_ZONE} from '@/constants';
+import {isEqual} from "lodash";
 
 const interactive = inject('interactive')
 
@@ -20,7 +21,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {})
 
 const component = ref(props.componentProps)
-
 </script>
 
 <template>

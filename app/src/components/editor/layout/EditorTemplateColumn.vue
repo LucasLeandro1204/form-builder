@@ -13,7 +13,6 @@ const interactive = inject('interactive')
 
 <template>
   <div class="draggable-column" draggable="true">
-    <span>Column {{ columnIndex + 1 }}</span>
     <div v-if="!interactive" class="outset-block right-block"/>
     <div class="column-inset-block">
       <slot/>

@@ -4,24 +4,25 @@ import {isEqual, isNull} from 'lodash';
 import {nanoid} from "nanoid";
 import {elementsFromPoint} from "@/elementsFromPoint";
 
-const MIN_DIST = Math.pow(10, 2);
+const MIN_DIST = Math.pow(10, 2);4
+
+export type Path = Array<[string, string, string]>  | null;
 
 interface Context {
     startX: number;
     startY: number;
     element: Element | null;
-    closestElement: Element | null;
+    closestElement?: Element;
+    currentPointerPath?: Path;
+    previousPointerPath?: Path;
     pointerId: number;
-    currentPointerPath: Array<number> | null;
-    previousPointerPath: Array<number> | null;
-    invocationId: number;
+    invocationId?: number;
 }
 
-export type Path = Array<number | string> | null
 
 export interface IntersectionEvent {
     type: string;
-    closestElement: Element | null,
+    closestElement: Element,
     path: Path
 }
 
@@ -54,15 +55,15 @@ function closestElementFromPoint(event: PointerEvent) {
 
 function setCurrentPointerContext(context: Context, closestElement: Element) {
     context.closestElement = closestElement
-    context.currentPointerPath = closestElement.getAttribute('data-position')!.split(`-`) || []
+    context.currentPointerPath = closestElement.getAttribute('data-position')!.split(`-`)
     context.element?.setAttribute('data-current-path', context.currentPointerPath)
     // console.log(context.currentPointerPath)
-    // console.log(context.currentPointerPath, context.closestElement)
 }
 
 function resetCurrentPointerContext(context: Context) {
     context.closestElement = null
     context.currentPointerPath = null
+    context.element?.setAttribute('data-current-path', '')
 }
 
 const dragMachine = createMachine<Context, Event, State>(
@@ -112,11 +113,11 @@ const dragMachine = createMachine<Context, Event, State>(
                                 'updateTransform',
                                 'updateCurrentPointerPath',
                                 'updatePreviousPointerPath',
+                                'respondIntersection',
                             ],
                         },
                         {
                             target: 'dragging',
-                            cond: 'previousAndCurrentPathAreNotEqual',
                             actions: [
                                 'updateTransform',
                                 'updateCurrentPointerPath',
@@ -130,6 +131,7 @@ const dragMachine = createMachine<Context, Event, State>(
             dropped: {
                 type: 'final',
                 entry: [
+                    'updateCurrentPointerPath',
                     'resetTransform',
                     'resetInvocationId',
                     'respondDropped',
@@ -138,8 +140,9 @@ const dragMachine = createMachine<Context, Event, State>(
             canceled: {
                 type: 'final',
                 entry: [
+                    'updateCurrentPointerPath',
                     'resetTransform',
-                    'respondCanceled',
+                    'resetInvocationId',
                 ],
             },
         },
@@ -202,8 +205,6 @@ const dragMachine = createMachine<Context, Event, State>(
         },
         guards: {
             previousAndCurrentPathAreEqual: (ctx, _) => isEqual(ctx.currentPointerPath, ctx.previousPointerPath),
-            previousAndCurrentPathAreNotEqual: (ctx, _) => !isEqual(ctx.currentPointerPath, ctx.previousPointerPath),
-            currentPointerPathIsNull: (ctx, _) => isNull(ctx.currentPointerPath),
             pointerMatches: (ctx, event) => ctx.pointerId === event.pointerId,
             minimumDistance: (ctx, event) =>
                 ctx.pointerId === event.pointerId &&

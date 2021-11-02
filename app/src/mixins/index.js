@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, {isArray} from "lodash";
 
 /**
  * Hashify
@@ -471,7 +471,11 @@ export const findPath = (ob, key, value) => {
 }
 
 export const addDataAttributes = (elements, state) =>
-    elements.map(el => el.setAttribute('data-state', state))
+    isArray(elements)
+        ? elements.map(el => el.setAttribute('data-state', state))
+        : elements.setAttribute('data-state', state)
+
+
 export const removeDataAttributes = (elements, state) =>
     elements.map(el => el.removeAttribute('data-state', state))
 
@@ -496,3 +500,64 @@ export const multiFilter = (arr, filters) => {
         });
     });
 };
+
+/**
+ * Object Deep Filter
+ *
+ * Usage:
+ * const graph = {...deeplyNestedObject}
+ * const filtered = (targetId, graph) => filterDeep(({parentObject: {id} = {}}) => id !== targetId)(graph)
+ *
+ * @param pred
+ * @returns {function(*=): {[p: string]: any}|any}
+ */
+const filterDeep = (pred) => (obj) =>
+        Object(obj) === obj
+            ? Object.fromEntries(
+                Object.entries(obj)
+                    .flatMap(([k, v]) => pred(v) ? [[k, filterDeep(pred)(v)]] : [])
+            )
+            : obj
+
+
+    /*const findPathData = (context, data = {}) => {
+        context.layout.forEach((row, rowIndex) => {
+            if ((!row.children || (row.children && !row.children.length))) {
+                Object.assign(data, {
+                    parentPath: `layout`,
+                    childIndex: rowIndex
+                })
+            }
+            row.children.forEach((column, columnIndex) => {
+                if ((!column.children || (column.children && !column.children.length))) {
+                    Object.assign(data, {
+                        parentPath: `layout[${rowIndex}].children`,
+                        childIndex: columnIndex
+                    })
+                }
+            })
+        })
+        return data;
+    }
+
+    const findExactElementPath = (context) => {
+        let unsetPath = ``
+        context.layout.forEach((row, rowIndex) => {
+            if ((!row.children || (row.children && !row.children.length))) {
+                return unsetPath = `layout[${rowIndex}]`
+            }
+            row.children.forEach((column, columnIndex) => {
+                if ((!column.children || (column.children && !column.children.length))) {
+                    return unsetPath = `layout[${rowIndex}].children[${columnIndex}]`
+                }
+            })
+        })
+        return unsetPath;
+    }
+
+    const rect = (el: any) => el.getBoundingClientRect();
+
+    const center = (el: any) => {
+        const elRect = rect(el);
+        return [elRect.left + elRect.width / 2, elRect.top + elRect.height / 2];
+    }*/;

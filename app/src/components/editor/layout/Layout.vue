@@ -10,9 +10,6 @@ const interactive = ref(true)
 
 provide('interactive', computed(() => interactive.value))
 
-onMounted(() => {
-
-})
 </script>
 
 <template>
@@ -25,18 +22,35 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
+@import "./src/scss/abstracts";
+
+:root {
+  --placeholder-border-color: #fc5454;
+  --placeholder-background-color: rgba(var(--placeholder-border-color), 0.40);
+}
 
 .editor-template-layout-inset-block {
   &.interactive-on {
     .draggable-row {
       .draggable-column {
         .draggable-component {
-          &.drop-zone {
-            background: #21a67a;
+
+          .component-inset-block {
+            background: aliceblue;
+            border-radius: rem-calc(8);
           }
 
           &.pseudo-component {
-            background: coral;
+            background: var(--placeholder-background-color);
+
+            &::after {
+              content: '';
+              position: absolute;
+              inset: 0;
+              width: 100%;
+              height: 100%;
+              @include dashed-border(var(--placeholder-border-color))
+            }
           }
         }
       }

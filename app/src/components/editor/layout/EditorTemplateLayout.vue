@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import {computed, onBeforeUpdate, onMounted, ref, unref, watch} from "vue";
-import {useActor} from "@xstate/vue";
+import {computed, ref, watch, onMounted} from "vue";
 import {ActorRef} from "xstate";
-import {addDataAttributes} from '@/mixins'
-
-const props = defineProps<{
-  actorRef: ActorRef<any>;
-}>()
+import {useActor} from "@xstate/vue";
 
 import Row from "@/components/editor/layout/EditorTemplateRow.vue";
 import Column from "@/components/editor/layout/EditorTemplateColumn.vue";
 import Component from "@/components/editor/layout/EditorTemplateComponent.vue";
-import {PSEUDO_COMPONENT} from "@/constants";
+
+const props = defineProps<{
+  actorRef: ActorRef<any>;
+}>()
 
 const {state, send} = useActor(props.actorRef)
 
@@ -19,32 +17,22 @@ const current = ref(state.value)
 const layout = computed(() => state.value.context.layout)
 
 onMounted(() => {
+
   watch(state, (state) => {
     if (state.changed) {
       current.value = state.value
-      addDataAttributes(
-          [document.querySelector('#app')],
-          `${state.toStrings()}`.split(',')
-      )
-      // console.log(state.value, state.context)
     }
   })
 })
-
-
-const rows = ref([])
-const columns = ref([])
-const components = ref([])
-
 </script>
 
 <template>
-  <Row v-for="(row, index) in layout"
-       :key="index"
-       :data-position="index"
-       :row-index="index"
-       ref="rows">
-    <div v-if="row.children && row.children.length">
+  <transition-group name="fade">
+    <Row v-for="(row, index) in layout"
+         :key="index"
+         :data-position="index"
+         :row-index="index"
+         ref="rows">
       <Column v-for="(column, idx) in row.children" :key="idx"
               :data-position="`${index}-${idx}`"
               :row-index="index"
@@ -61,11 +49,8 @@ const components = ref([])
                      ref="components"/>
         </div>
       </Column>
-    </div>
-    <div v-else>
-      <h1>Empty :o</h1>
-    </div>
-  </Row>
+    </Row>
+  </transition-group>
 </template>
 
 <style lang="scss">
@@ -79,6 +64,9 @@ const components = ref([])
 .row-inset-block,
 .column-inset-block,
 .component-inset-block {
+  overflow: hidden;
+  border-radius: rem-calc(8);
+
   > div {
     width: 100%;
   }
@@ -99,6 +87,7 @@ const components = ref([])
   .draggable-row {
 
     .draggable-column {
+      padding: 0;
 
       .draggable-component {
 
