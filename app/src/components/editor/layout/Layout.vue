@@ -9,7 +9,6 @@ const props = defineProps({
 const interactive = ref(true)
 
 provide('interactive', computed(() => interactive.value))
-
 </script>
 
 <template>
@@ -42,6 +41,17 @@ provide('interactive', computed(() => interactive.value))
 
           &.pseudo-component {
             background: var(--placeholder-background-color);
+
+            &::before {
+              content: 'Drop here to add section';
+              display: flex;
+              inset: 0;
+              width: 100%;
+              height: 100%;
+              pointer-events: none;
+              align-items: center;
+              justify-content: center;
+            }
 
             &::after {
               content: '';

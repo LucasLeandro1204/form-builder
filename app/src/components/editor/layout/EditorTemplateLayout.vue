@@ -27,22 +27,22 @@ onMounted(() => {
 </script>
 
 <template>
-  <transition-group name="fade">
     <Row v-for="(row, index) in layout"
-         :key="index"
+         :key="row.id"
          :data-position="index"
          :row-index="index"
          ref="rows">
-      <Column v-for="(column, idx) in row.children" :key="idx"
+      <Column v-for="(column, idx) in row.children"
+              :key="column.id"
               :data-position="`${index}-${idx}`"
               :row-index="index"
               :column-index="idx"
               ref="columns">
         <div v-if="column.children && column.children.length">
-          <Component v-for="(component, i) in column.children" :key="i"
+          <Component v-for="(component, i) in column.children"
+                     :key="component.id"
                      :data-position="`${index}-${idx}-${i}`"
                      :component-props="component"
-                     :index="i"
                      :row-index="index"
                      :column-index="idx"
                      :component-index="i"
@@ -50,22 +50,27 @@ onMounted(() => {
         </div>
       </Column>
     </Row>
-  </transition-group>
 </template>
 
 <style lang="scss">
 @import "./src/scss/abstracts";
+
+
+
 
 .pen-strokes-vector {
   width: 100%;
   height: 100%;
 }
 
+.column-inset-block {
+
+}
+
 .row-inset-block,
 .column-inset-block,
 .component-inset-block {
   overflow: hidden;
-  border-radius: rem-calc(8);
 
   > div {
     width: 100%;
@@ -87,7 +92,7 @@ onMounted(() => {
   .draggable-row {
 
     .draggable-column {
-      padding: 0;
+      //padding: 0;
 
       .draggable-component {
 
@@ -113,21 +118,15 @@ onMounted(() => {
   z-index: 99;
   display: flex;
   flex-direction: column;
-  background: rgba(241, 235, 123, 0.13);
-
-  //> * {
-  //  pointer-events: none;
-  //}
-
-  .column-inset-block {
-
-  }
+  background: repeating-linear-gradient(90deg, #0a284b4f, transparent 4px);
+  //margin: 8px;
 }
 
 .draggable-component {
   //z-index: 199;
 
   .component-inset-block {
+    padding: rem-calc(24);
 
   }
 }
@@ -139,6 +138,11 @@ onMounted(() => {
   overflow: hidden;
   width: 100%;
   padding: rem-calc(24);
+  border: solid rem-calc(1) #ffe04b;
+
+  > div {
+
+  }
 
   > span {
     padding: 18px;
@@ -147,7 +151,6 @@ onMounted(() => {
   }
 
   .component-inset-block,
-  .column-inset-block,
   .row-inset-block {
     position: relative;
 
@@ -162,13 +165,17 @@ onMounted(() => {
     width: 100%;
     display: flex;
     flex-flow: row nowrap;
+
   }
 
   .column-inset-block {
     height: 100%;
     width: 100%;
-    display: flex;
-    flex-direction: column;
+   > div {
+     display: flex;
+     flex-direction: column;
+     position: relative;
+   }
 
     .draggable-component {
       &:nth-child(n+2) {
@@ -184,7 +191,6 @@ onMounted(() => {
     flex-direction: column;
     width: 100%;
     color: black;
-    padding: 32px;
     text-align: center;
     //overflow: hidden;
   }

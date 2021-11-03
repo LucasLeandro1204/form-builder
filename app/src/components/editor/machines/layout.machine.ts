@@ -1,36 +1,36 @@
 // @ts-nocheck
 import {nanoid} from "nanoid";
 import {assign, createMachine, interpret, send, sendParent} from 'xstate';
-import {COLUMN, PSEUDO_COMPONENT, ROW} from "@/constants/index.ts";
+import {COLUMN, COMPONENT_PLACEHOLDER, ROW} from "@/constants/index.ts";
 import {layout, RowLevel} from "@/components/editor/data/layout.components";
-import {get, isArray, isEqual, isNull, set, unset} from "lodash";
-import {mutationSequenceMachine} from "@/components/editor/machines/mutationSequenceMachine";
+import {removeDuplicates} from '@/mixins';
 
 interface LayoutContext {
     layout: Array<RowLevel>;
 }
 
-const createComponentElement = () => ({
-    id: 999,
-    type: PSEUDO_COMPONENT,
+const createRowColumnComponentPlaceholder = (context, _event) => ({
+    id: 999, // context.invocationId
+    type: ROW,
+    children: [
+        {...createColumnComponentPlaceholder(context, _event)}
+    ]
+})
+
+const createColumnComponentPlaceholder = (context, _event) => ({
+    id: 999, // context.invocationId
+    type: COLUMN,
+    children: [
+        {...createComponentPlaceholder(context, _event)}
+    ]
+})
+
+const createComponentPlaceholder = (context, _event) => ({
+    id: 999, // context.invocationId
+    type: COMPONENT_PLACEHOLDER,
     as: 'LayoutComponentPlaceholder',
 })
 
-const createColumnElement = () => ({
-    id: nanoid(),
-    type: COLUMN,
-    children: [
-        {...createComponentElement()}
-    ]
-})
-
-const createRowElement = () => ({
-    id: nanoid(),
-    type: ROW,
-    children: [
-        {...createColumnElement()}
-    ]
-})
 
 /**
  * Use {context.path} to insert {context.element}
@@ -39,42 +39,66 @@ const createRowElement = () => ({
  * @param event
  */
 const insertElementAtPosition = (context, event) => {
+    console.log('insertElementAtPosition - event', event)
     return new Promise((resolve) => {
         const {layout, path} = context
-        const [row, column, component] = path
-        const depth = path.length
-        switch (depth) {
-            case 1:
-                layout.splice(row, 1, createRowElement())
-                break;
-            case 2:
-                layout[row].children.splice(column, 0, createColumnElement())
-                break;
-            case 3:
-                layout[row].children[column].children.splice(component, 0, createComponentElement())
-                break;
+        const layoutDataset = [...layout]
+        if (path && path.length) {
+            const [row, column, component] = path
+            switch (path.length) {
+                case 1:
+                    layoutDataset.splice(row, 0, createRowColumnComponentPlaceholder())
+                    break;
+                case 2:
+                    layoutDataset?.[row]?.children.splice(column, 0, createColumnComponentPlaceholder())
+                    break;
+                case 3:
+                    layoutDataset?.[row]?.children[column]?.children.splice(component, 0, createComponentPlaceholder())
+                    break;
+            }
         }
-        resolve(layout)
+        resolve(layoutDataset)
     })
 }
 
 const removeComponent = (context, event) => {
-    return new Promise((resolve, reject) => resolve(
-            context.layout.map(row => ({
+    return new Promise((resolve, reject) => {
+            const invocationId = event.invocationId
+            let layoutDataset = [...context.layout]
+
+            // 1. Filter all rows that are created by a new component
+            // 2. Filter all columns that are created by a new component
+            // 3. Filter all new components
+            layoutDataset = layoutDataset
+                .filter(row => row.id !== (999 || invocationId))
+
+            // Filter all columns that are created by a new component
+            layoutDataset = layoutDataset
+                .map(row => ({
                     ...row,
-                    children: row.children.map(column => ({
-                        ...column,
-                        children: column.children.map(component =>
-                            component.id !== 999
-                        )
-                    }))
-                }
-            ))
-            // resolve(context.layout)
-        )
+                    children: row.children
+                        .filter(column => column.id !== (999 || invocationId))
+                }))
+
+            // Filter all new components
+            layoutDataset = layoutDataset
+                .map(row => ({
+                    ...row,
+                    children: row.children
+                        .map(column => ({
+                            ...column,
+                            children: column.children
+                                .filter(component => component.id !== (999 || invocationId))
+                        }))
+                }))
+
+
+            const cleanedDataset = removeDuplicates(layoutDataset, ({id}) => id)
+            console.log(cleanedDataset)
+            resolve(cleanedDataset)
+        }
     )
 }
-
 
 export const layoutMachine = createMachine<LayoutContext>(
     {
@@ -86,6 +110,7 @@ export const layoutMachine = createMachine<LayoutContext>(
             path: null,
             closestElement: null,
             typeofElement: null,
+            itemBeingHeld: null,
             invocationId: null,
             originalEvent: null,
         },
@@ -96,7 +121,6 @@ export const layoutMachine = createMachine<LayoutContext>(
                     INTERSECTED: {
                         actions: 'assignIntersectionEventToContext',
                         target: 'updating',
-                        cond: 'draggingInside',
                     },
                 },
             },
@@ -118,24 +142,25 @@ export const layoutMachine = createMachine<LayoutContext>(
                         invoke: {
                             id: 'removing',
                             src: (context, event) => removeComponent(context, event),
+                            data: {
+                                id: (_ctx, event) => event.invocationId,
+                            },
                             onDone: {
-                                target: 'preparing',
-                                actions: [
-                                    assign({
-                                        layout: (context, event) => event.data,
-                                    })
-                                ],
+                                target: 'inserting',
+                                actions: assign({
+                                    layout: (context, event) => [...new Set([...event.data])],
+                                }),
                             },
                         },
                     },
                     inserting: {
                         invoke: {
                             id: "inserting",
-                            src: (context, _event) => insertElementAtPosition(context),
+                            src: (context, event) => insertElementAtPosition(context, event),
                             onDone: {
                                 target: 'resolved',
                                 actions: assign({
-                                    layout: (context, _event) => context.layout
+                                    layout: (context, event) => event.data
                                 }),
                             },
                         },
@@ -176,8 +201,6 @@ export const layoutMachine = createMachine<LayoutContext>(
                 context.closestElement = event.closestElement
                 context.invocationId = event.invocationId
                 context.originalEvent = event.originalEvent
-                //
-                console.log('inside or outside? ', context.dragging)
             }),
         },
         guards: {
@@ -186,13 +209,13 @@ export const layoutMachine = createMachine<LayoutContext>(
 
             draggingOutside: (context, event) => event.dragging === 'outside',
 
-            canDrop: (context, _event) => (context.path && context.path.length),
+            canDrop: (context, _event) => context.path && context.path.length,
 
             elementAlreadyExists: (context, _event) =>
                 context.layout.some((row) =>
                     row.children.some((column) =>
                         column.children.some(
-                            (component) => component.type === PSEUDO_COMPONENT
+                            (component) => component.type === COMPONENT_PLACEHOLDER
                         )
                     )
                 ),

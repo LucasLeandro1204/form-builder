@@ -4,7 +4,6 @@ import {interpret} from "xstate";
 import Sidebar from '@/components/editor/sidebar/Sidebar.vue'
 import Layout from "@/components/editor/layout/Layout.vue";
 import {appMachine} from '@/components/editor/machines/app.machine'
-import MutationSequenceMachine from "@/components/editor/MutationSequenceMachine.vue";
 
 import {inspect} from '@xstate/inspect'
 import {addDataAttributes} from "@/mixins";
@@ -18,13 +17,16 @@ const {state, send} = service.start()
 
 const current = ref(state.context)
 
-onMounted(()=>{
+const addAppStateAttributes = (app) =>
+    addDataAttributes(app, `${state.toStrings()}`.split(','))
+
+onMounted(() => {
   const app = document.querySelector('#app')
 
   service.onTransition((state, event) => {
     if (state.changed) {
       current.value = state.context
-      addDataAttributes(app, `${state.toStrings()}`.split(','))
+
     }
   })
 })

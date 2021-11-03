@@ -1,5 +1,5 @@
 import {icons} from '@/mixins/icons'
-import {PSEUDO_COMPONENT} from "@/constants";
+import {COMPONENT_PLACEHOLDER} from "@/constants";
 
 const {
     attachments, checklist, date, datetime, dropdown, image,
@@ -28,13 +28,13 @@ export const sidebarElements: Array<SidebarElements> = [
         elements: [
             {
                 as: 'section',
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
                 label: 'section',
                 icon: sections,
             },
             {
                 as: 'table',
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
                 label: 'table',
                 icon: table,
             },
@@ -47,19 +47,19 @@ export const sidebarElements: Array<SidebarElements> = [
             {
                 label: 'single line',
                 as: 'single line',
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
                 icon: singleline,
             },
             {
                 label: 'multiline',
                 as: 'multiline',
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
                 icon: multiline,
             },
             {
                 label: 'number',
                 as: 'single line',
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
                 icon: numbers,
             },
         ]
@@ -72,13 +72,13 @@ export const sidebarElements: Array<SidebarElements> = [
                 label: 'date',
                 icon: date,
                 as: 'date',
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
             },
             {
                 label: 'date & time',
                 icon: datetime,
                 as: 'datetime',
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
             },
         ]
     },
@@ -90,25 +90,25 @@ export const sidebarElements: Array<SidebarElements> = [
                 as: 'switch',
                 label: 'yes / no',
                 icon: switchOutline,
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
             },
             {
                 as: 'dropdown',
                 label: 'dropdown',
                 icon: dropdown,
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
             },
             {
                 as: 'checkbox',
                 label: 'checkbox',
                 icon: checklist,
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
             },
             {
                 as: 'checklist',
                 label: 'checklist',
                 icon: checklist,
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
             },
         ]
     },
@@ -120,19 +120,19 @@ export const sidebarElements: Array<SidebarElements> = [
                 as: 'attachment',
                 label: 'attachments',
                 icon: attachments,
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
             },
             {
                 as: 'image',
                 label: 'image',
                 icon: image,
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
             },
             {
                 as: 'slider',
                 label: 'slider',
                 icon: slider,
-                type: PSEUDO_COMPONENT,
+                type: COMPONENT_PLACEHOLDER,
             },
         ]
     },

@@ -113,7 +113,7 @@ const dragMachine = createMachine<Context, Event, State>(
                                 'updateTransform',
                                 'updateCurrentPointerPath',
                                 'updatePreviousPointerPath',
-                                'respondIntersection',
+                                // 'respondIntersection',
                             ],
                         },
                         {

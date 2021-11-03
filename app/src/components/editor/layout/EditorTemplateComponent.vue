@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import {ref, inject, computed} from "vue";
-import {PSEUDO_COMPONENT, DROP_ZONE} from '@/constants';
-import {isEqual} from "lodash";
+import {ref, inject} from "vue";
 
 const interactive = inject('interactive')
 
@@ -25,10 +23,10 @@ const component = ref(props.componentProps)
 
 <template>
   <div class="draggable-component" draggable="true"
-       :class="{'pseudo-component': component.type === PSEUDO_COMPONENT}">
+       :class="{'placeholder-component': component.type === 'component-placeholder'}">
     <div v-if="!interactive" class="outset-block top-block"/>
     <div class="component-inset-block">
-      <span>{{ component.type }}</span>
+      <span>{{ component }}</span>
     </div>
     <div v-if="!interactive" class="outset-block bottom-block"/>
   </div>
@@ -37,5 +35,7 @@ const component = ref(props.componentProps)
 <style lang="scss">
 @import "src/scss/abstracts";
 
-
+.placeholder-component {
+  background: red;
+}
 </style>

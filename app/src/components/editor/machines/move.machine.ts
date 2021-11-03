@@ -32,7 +32,7 @@ export type DragAndDropMachineEvent =
 //     type: "DOWN_ARROW";
 //   };
 
-const dragAndDropMachine = createMachine<DragAndDropMachineContext,
+export const dragAndDropMachine = createMachine<DragAndDropMachineContext,
     DragAndDropMachineEvent>(
     {
         id: 'dragAndDrop',

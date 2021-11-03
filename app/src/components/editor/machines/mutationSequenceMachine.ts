@@ -1,7 +1,7 @@
 //@ts-nocheck
 import {assign, createMachine} from "xstate";
 import {nanoid} from "nanoid";
-import {COLUMN, PSEUDO_COMPONENT, ROW} from "@/constants";
+import {COLUMN, COMPONENT_PLACEHOLDER, ROW} from "@/constants";
 
 
 async function sequence(...promiseCreators) {

@@ -1,4 +1,4 @@
-import {COLUMN, COMPONENT, DROP_ZONE, PSEUDO_COMPONENT, ROW} from "@/constants/index.ts";
+import {COLUMN, COMPONENT, DROP_ZONE, COMPONENT_PLACEHOLDER, ROW} from "@/constants/index.ts";
 import {nanoid} from 'nanoid';
 import {capitalize} from "lodash";
 import {toCamelCaseString} from '@/mixins'
@@ -32,56 +32,11 @@ export const layout: Array<RowLevel> = [
                 type: COLUMN,
                 children: [
                     // --> initial component
-                    //
-                    // initial component <--
-                ]
-            }
-        ]
-    },
-    {
-        id: nanoid(),
-        type: ROW,
-        children: [
-            {
-                id: nanoid(),
-                type: COLUMN,
-                children: [
-                    // --> initial component
                     {
                         id: nanoid(),
                         type: COMPONENT,
                         as: 'FormText',
                     },
-                    // initial component <--
-                ]
-            }
-        ]
-    },
-    {
-        id: nanoid(),
-        type: ROW,
-        children: [
-            {
-                id: nanoid(),
-                type: COLUMN,
-                children: [
-                    // --> initial component
-                    //
-                    // initial component <--
-                ]
-            }
-        ]
-    },
-    {
-        id: nanoid(),
-        type: ROW,
-        children: [
-            {
-                id: nanoid(),
-                type: COLUMN,
-                children: [
-                    // --> initial component
-                    //
                     // initial component <--
                 ]
             }

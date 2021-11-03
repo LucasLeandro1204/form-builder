@@ -560,4 +560,11 @@ const filterDeep = (pred) => (obj) =>
     const center = (el: any) => {
         const elRect = rect(el);
         return [elRect.left + elRect.width / 2, elRect.top + elRect.height / 2];
-    }*/;
+    }*/
+
+
+export function removeDuplicates(data, key) {
+    return [
+        ...new Map(data.map(item => [key(item), item])).values()
+    ]
+}
