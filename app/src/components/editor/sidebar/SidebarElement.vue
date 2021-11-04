@@ -8,21 +8,23 @@ const props = defineProps({
   element: {
     type: Object,
     required: true,
-    ref: {
-      id: 0,
-    }
   },
+  actorRef: {
+    type: Object,
+    required: true,
+  }
 })
 
 const uuid = nanoid(3)
-const {state, send} = useActor(props.element.ref)
+const actor = props.actorRef
+const {state, send} = useActor(actor)
 const current = ref(state.value)
 
 onMounted(() => {
   const draggableElement = document.getElementById(`sidebar-element-${uuid}`)
 
   watch(state, (currentState) => {
-    if (currentState.changed) {
+    if (currentState?.changed) {
       current.value = currentState.value
       addDataAttributes([draggableElement], currentState.value)
     }
@@ -34,7 +36,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <a class="editor-sidebar-element-option block-outset"
+  <a class="editor-sidebar-element-option"
      :id="`sidebar-element-${uuid}`"
      :class="element.as"
      :data-type="element.as.toLowerCase()">
@@ -58,11 +60,14 @@ onMounted(() => {
   z-index: 199;
   height: rem-calc(50);
 
-  // Performance optimizations
+  // Touchscreen
+  touch-action: none;
+
+  // Performance
   outline: 1px solid transparent;
   -webkit-backface-visibility: hidden;
   will-change: transform;
-  contain: layout;
+  //contain: layout;
 
   .editor-element-icon {
     $size: rem-calc(20);
@@ -75,10 +80,10 @@ onMounted(() => {
     inset: 0;
     position: absolute;
     border: solid rem-calc(2) transparent;
-    width: 105%;
-    height: 105%;
-    left: -2.5%;
-    top: -2.5%;
+    width: 104%;
+    height: 104%;
+    left: -2%;
+    top: -2%;
     border-radius: rem-calc(6);
     transition: border linear 60ms;
   }

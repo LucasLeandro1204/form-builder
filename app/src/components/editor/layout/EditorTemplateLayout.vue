@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref, watch, onMounted} from "vue";
+import {computed, ref, watch, onMounted, useAttrs} from "vue";
 import {ActorRef} from "xstate";
 import {useActor} from "@xstate/vue";
 
@@ -16,88 +16,85 @@ const {state, send} = useActor(props.actorRef)
 const current = ref(state.value)
 const layout = computed(() => state.value.context.layout)
 
-onMounted(() => {
-
-  watch(state, (state) => {
-    if (state.changed) {
-      current.value = state.value
-    }
-  })
+watch(state, (state) => {
+  if (state.changed) {
+    current.value = state.value
+  }
 })
 </script>
 
 <template>
-    <Row v-for="(row, index) in layout"
-         :key="row.id"
-         :data-position="index"
-         :row-index="index"
-         ref="rows">
-      <Column v-for="(column, idx) in row.children"
-              :key="column.id"
-              :data-position="`${index}-${idx}`"
-              :row-index="index"
-              :column-index="idx"
-              ref="columns">
-        <div v-if="column.children && column.children.length">
-          <Component v-for="(component, i) in column.children"
-                     :key="component.id"
-                     :data-position="`${index}-${idx}-${i}`"
-                     :component-props="component"
-                     :row-index="index"
-                     :column-index="idx"
-                     :component-index="i"
-                     ref="components"/>
-        </div>
-      </Column>
-    </Row>
+  <Row v-for="(row, index) in layout"
+       :key="row.id"
+       :data-position="index"
+       :row-index="index"
+       ref="rows">
+    <Column v-for="(column, idx) in row.children"
+            :key="column.id"
+            :data-position="`${index}-${idx}`"
+            :row-index="index"
+            :column-index="idx"
+            ref="columns">
+      <div v-if="column.children && column.children.length">
+        <Component v-for="(component, i) in column.children"
+                   :key="component.id"
+                   :data-position="`${index}-${idx}-${i}`"
+                   :component-props="component"
+                   :row-index="index"
+                   :column-index="idx"
+                   :component-index="i"
+                   ref="components"/>
+      </div>
+    </Column>
+  </Row>
 </template>
 
 <style lang="scss">
 @import "./src/scss/abstracts";
 
+$red: rgb(234, 26, 26);
 
+.editor-template-layout {
+  position: relative;
 
-
-.pen-strokes-vector {
-  width: 100%;
-  height: 100%;
+  .editor-template-layout-inset-block {
+    height: 100%;
+    max-width: 100%;
+    margin: 0 rem-calc(48);
+    background: #FFFFFF;
+  }
 }
 
-.column-inset-block {
+.draggable-row {
+  .row-inset-block {
+    border-radius: rem-calc(12);
+  }
 
+  .draggable-column {
+    .draggable-component {
+      min-height: rem-calc(80);
+      position: relative;
+
+      .component-inset-block {
+        border-radius: rem-calc(8);
+        width: 100%;
+
+      }
+    }
+  }
 }
 
 .row-inset-block,
 .column-inset-block,
 .component-inset-block {
   overflow: hidden;
+  width: 100%;
 
   > div {
     width: 100%;
-  }
-}
-
-.editor-template-layout {
-  position: relative;
-  overflow: hidden;
-
-  .editor-template-layout-inset-block {
-    max-width: 100%;
-    position: relative;
-    min-height: 100vh;
-    background: #FFFFFF;
-    margin: 0 20px;
-  }
-
-  .draggable-row {
-
-    .draggable-column {
-      //padding: 0;
-
-      .draggable-component {
-
-      }
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
@@ -106,46 +103,54 @@ onMounted(() => {
   background: #457bb7;
   display: flex;
   flex-direction: column;
-
-
-  .row-inset-block {
-
-
-  }
 }
 
 .draggable-column {
   z-index: 99;
   display: flex;
   flex-direction: column;
-  background: repeating-linear-gradient(90deg, #0a284b4f, transparent 4px);
-  //margin: 8px;
+  background: repeating-linear-gradient(
+          90deg, #0a284b4f, transparent rem-calc(4));
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .draggable-component {
-  //z-index: 199;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
 
   .component-inset-block {
-    padding: rem-calc(24);
-
+    padding: rem-calc(50);
+    background: aliceblue;
+    border-radius: rem-calc(8);
   }
+
+  &.placeholder-component {
+    .component-inset-block {
+      background: #0101014a;
+    }
+  }
+
 }
 
-.draggable-component,
+.draggable-column {
+  padding: 0 rem-calc(24);
+}
+
+.draggable-row {
+  padding: rem-calc(24) 0;
+
+}
+
 .draggable-column,
 .draggable-row {
   position: relative;
   overflow: hidden;
   width: 100%;
-  padding: rem-calc(24);
-  border: solid rem-calc(1) #ffe04b;
-
-  > div {
-
-  }
 
   > span {
-    padding: 18px;
+    padding: rem-calc(18);
     font-weight: 500;
     pointer-events: none;
   }
@@ -153,33 +158,31 @@ onMounted(() => {
   .component-inset-block,
   .row-inset-block {
     position: relative;
-
-    span {
-
-    }
   }
 
-
   .row-inset-block {
-    height: 100%;
     width: 100%;
     display: flex;
     flex-flow: row nowrap;
-
   }
 
   .column-inset-block {
-    height: 100%;
     width: 100%;
-   > div {
-     display: flex;
-     flex-direction: column;
-     position: relative;
-   }
+    height: 100%;
 
-    .draggable-component {
-      &:nth-child(n+2) {
-        //padding-top: rem-calc(12);
+    > div {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      align-items: center;
+      height: 100%;
+
+      .draggable-component {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        align-items: center;
+        height: 100%;
       }
     }
   }
@@ -190,39 +193,73 @@ onMounted(() => {
     align-items: center;
     flex-direction: column;
     width: 100%;
+    height: 100%;
     color: black;
     text-align: center;
-    //overflow: hidden;
+  }
+}
+
+.nowrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.draggable-row {
+  cursor: move;
+
+  &:hover {
+    background: $red;
+  }
+
+  .draggable-column {
+    cursor: move;
+
+    &:hover {
+      .draggable-component {
+        &:hover {
+          background: $red;
+        }
+
+        .component-inset-block {
+          background: white;
+
+          * {
+            color: black;
+          }
+        }
+      }
+    }
   }
 }
 
 
-.outset-block {
-  border: solid rem-calc(1) #0d4586;
+.draggable-component {
+  cursor: move;
+}
 
-  &.top-block,
-  &.bottom-block {
-    height: rem-calc(24);
-    width: 100%;
+.draggable-column {
+  padding: 0 rem-calc(24);
+
+  .column-inset-block {
+    .draggable-component {
+      padding: rem-calc(24) 0;
+    }
   }
 
-  &.right-block,
-  &.left-block {
-    height: 100%;
-    width: rem-calc(24);
-  }
+  .component-inset-block {
+    .component-position-text {
+      text-align: center;
+      color: #f6eded;
+      font-weight: 900;
+      font-size: rem-calc(16);
+      letter-spacing: em-calc(0.8);
 
-  &.top-block {
-  }
-
-  &.right-block {
-
-  }
-
-  &.bottom-block {
-  }
-
-  &.left-block {
+      &:first-letter {
+        text-transform: uppercase;
+      }
+    }
   }
 }
+
 </style>

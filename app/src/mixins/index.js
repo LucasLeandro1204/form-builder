@@ -1,4 +1,5 @@
 import _, {isArray} from "lodash";
+import {layout} from "../components/editor/data/layout.components";
 
 /**
  * Hashify
@@ -201,49 +202,7 @@ export function everythingBetween(array) {
 }
 
 
-import * as yup from "yup";
-import {layout} from "../components/editor/data/layout.components";
 
-/**
- * Create Yup Schema at runtime
- *
- * @param schema
- * @param config
- * @returns {*}
- */
-export const createYupSchema = (schema, config) => {
-    const {id, validationType, validations = []} = config;
-    if (!yup[validationType]) {
-        return schema;
-    }
-    let validator = yup[validationType]();
-    validations.forEach(validation => {
-        const {params, type} = validation;
-        if (!validator[type]) {
-            return;
-        }
-        // console.log(type, params);
-        validator = validator[type](...params);
-    });
-    schema[id] = validator;
-    return schema;
-}
-
-/**
- * Yup optional required schema example
- *
- * @returns {*}
- */
-export const optionalRequiredSchema = () => Yup.object().shape({
-    optionalObject: Yup.lazy(value => {
-        if (value !== undefined) {
-            Yup.mixed().notRequired();
-        }
-        return Yup.object().shape({
-            otherData: Yup.string().required()
-        });
-    })
-});
 /**
  * Listener for keydown events on form fields
  *
@@ -407,6 +366,10 @@ export function nodeWithIdHasChildren(children, id) {
     }
 }
 
+/**
+ * UNTESTED
+ * @param parent
+ */
 function removeLevelWithoutChildren(parent) {
     if (!parent.children)
         return;
@@ -504,67 +467,84 @@ export const multiFilter = (arr, filters) => {
 /**
  * Object Deep Filter
  *
- * Usage:
- * const graph = {...deeplyNestedObject}
- * const filtered = (targetId, graph) => filterDeep(({parentObject: {id} = {}}) => id !== targetId)(graph)
+ * (targetId, data) => filterDeep(({parentObject: {id} = {}}) => id !== targetId)(data)
  *
  * @param pred
  * @returns {function(*=): {[p: string]: any}|any}
  */
 const filterDeep = (pred) => (obj) =>
-        Object(obj) === obj
-            ? Object.fromEntries(
-                Object.entries(obj)
-                    .flatMap(([k, v]) => pred(v) ? [[k, filterDeep(pred)(v)]] : [])
-            )
-            : obj
+    Object(obj) === obj
+        ? Object.fromEntries(
+            Object.entries(obj)
+                .flatMap(([k, v]) => pred(v) ? [[k, filterDeep(pred)(v)]] : [])
+        )
+        : obj
 
 
-    /*const findPathData = (context, data = {}) => {
-        context.layout.forEach((row, rowIndex) => {
-            if ((!row.children || (row.children && !row.children.length))) {
+const findPathData = (context, data = {}) => {
+    context.layout.forEach((row, rowIndex) => {
+        if ((!row.children || (row.children && !row.children.length))) {
+            Object.assign(data, {
+                parentPath: `layout`,
+                childIndex: rowIndex
+            })
+        }
+        row.children.forEach((column, columnIndex) => {
+            if ((!column.children || (column.children && !column.children.length))) {
                 Object.assign(data, {
-                    parentPath: `layout`,
-                    childIndex: rowIndex
+                    parentPath: `layout[${rowIndex}].children`,
+                    childIndex: columnIndex
                 })
             }
-            row.children.forEach((column, columnIndex) => {
-                if ((!column.children || (column.children && !column.children.length))) {
-                    Object.assign(data, {
-                        parentPath: `layout[${rowIndex}].children`,
-                        childIndex: columnIndex
-                    })
-                }
-            })
         })
-        return data;
-    }
+    })
+    return data;
+}
 
-    const findExactElementPath = (context) => {
-        let unsetPath = ``
-        context.layout.forEach((row, rowIndex) => {
-            if ((!row.children || (row.children && !row.children.length))) {
-                return unsetPath = `layout[${rowIndex}]`
+const findExactElementPath = (context) => {
+    let unsetPath = ``
+    context.layout.forEach((row, rowIndex) => {
+        if ((!row.children || (row.children && !row.children.length))) {
+            return unsetPath = `layout[${rowIndex}]`
+        }
+        row.children.forEach((column, columnIndex) => {
+            if ((!column.children || (column.children && !column.children.length))) {
+                return unsetPath = `layout[${rowIndex}].children[${columnIndex}]`
             }
-            row.children.forEach((column, columnIndex) => {
-                if ((!column.children || (column.children && !column.children.length))) {
-                    return unsetPath = `layout[${rowIndex}].children[${columnIndex}]`
-                }
-            })
         })
-        return unsetPath;
-    }
+    })
+    return unsetPath;
+}
 
-    const rect = (el: any) => el.getBoundingClientRect();
-
-    const center = (el: any) => {
-        const elRect = rect(el);
-        return [elRect.left + elRect.width / 2, elRect.top + elRect.height / 2];
-    }*/
-
-
+/**
+ * Removes duplicates from array by key
+ * @param data
+ * @param key
+ * @returns {V[]}
+ */
 export function removeDuplicates(data, key) {
     return [
         ...new Map(data.map(item => [key(item), item])).values()
     ]
 }
+
+/**
+ * getBoundingClientRect
+ *
+ * @param el
+ * @returns {DOMRect}
+ */
+export const rect = (el) => el.getBoundingClientRect();
+
+/**
+ * Get center coordinates HTML Element
+ * @param el
+ * @returns {*[]}
+ */
+export const center = (el) => {
+    const elRect = rect(el);
+    return [elRect.left + elRect.width / 2, elRect.top + elRect.height / 2];
+}
+
+export const setElementDataAttribute = (el, value) =>
+    addDataAttributes(el, value)

@@ -32,14 +32,15 @@ $element-border-color: #dadada;
 $element-border-size: rem-calc(2);
 
 .editor-layout-sidebar {
-  position: relative;
-  width: auto;
-  max-width: rem-calc(320);
+  position: absolute;
+  width: 100%;
+  max-width: $off-canvas-width-xl;
   background: #FFFFFF;
   height: 100%;
   min-height: 100vh;
-  padding: 0 rem-calc(14) rem-calc(14) rem-calc(12);
+  padding: $app-header-height rem-calc(14) rem-calc(14) rem-calc(12);
   box-shadow: rem-calc(6) 0 rem-calc(6) rem-calc(-6) #d3cfcf;
+  top: 0;
 
   .edtior-layout-section {
     display: flex;
@@ -51,14 +52,9 @@ $element-border-size: rem-calc(2);
   all: unset;
   width: 100%;
   margin: rem-calc(8) 0;
-
-  .option-text {
-
-  }
-
-  .editor-element-icon {
-
-  }
+  z-index: $sidebar-element-z-index;
+  //.option-text {}
+  //.editor-element-icon {}
 
   .editor-sidebar-element-legend {
     color: #575757;
@@ -95,6 +91,8 @@ $element-border-size: rem-calc(2);
       align-items: center;
       text-align: center;
       cursor: grab;
+      position: relative;
+      z-index: 1099;
 
       > * {
         pointer-events: none;

@@ -4,17 +4,18 @@ import {isEqual, isNull} from 'lodash';
 import {nanoid} from "nanoid";
 import {elementsFromPoint} from "@/elementsFromPoint";
 
-const MIN_DIST = Math.pow(10, 2);4
+const MIN_DIST = Math.pow(10, 2);
 
-export type Path = Array<[string, string, string]>  | null;
+export type Path = Array<[string, string, string]> | null;
 
 interface Context {
     startX: number;
     startY: number;
-    element: Element | null;
-    closestElement?: Element;
-    currentPointerPath?: Path;
-    previousPointerPath?: Path;
+    element: Element;
+    component?: Element;
+    componentPosition?: Path;
+    // todo: rename to previousComponentPosition
+    previousComponentPosition?: Path;
     pointerId: number;
     invocationId?: number;
 }
@@ -22,8 +23,10 @@ interface Context {
 
 export interface IntersectionEvent {
     type: string;
-    closestElement: Element,
-    path: Path
+    // todo: rename to component
+    component: Element,
+    // todo: rename to component position
+    position: Path
 }
 
 export interface DroppedEvent {
@@ -48,23 +51,25 @@ type State =
     | { value: "canceled"; context: Context }
     | { value: "dropped"; context: Context };
 
-function closestElementFromPoint(event: PointerEvent) {
-    const closestElements = elementsFromPoint(event.clientX, event.clientY)
-    return closestElements.find(el => el.hasAttribute('data-position'))
+const closestElementFromPoint = (event: PointerEvent) =>
+    elementsFromPoint(event.clientX, event.clientY)
+        .find(el => el.hasAttribute('data-position'))
+
+
+const setCurrentPointerContext = (context: Context, component: Element) => {
+    context.component = component
+    context.componentPosition = component.getAttribute('data-position')!.split(`-`)
+    context.element?.setAttribute('data-current-path', context.componentPosition)
 }
 
-function setCurrentPointerContext(context: Context, closestElement: Element) {
-    context.closestElement = closestElement
-    context.currentPointerPath = closestElement.getAttribute('data-position')!.split(`-`)
-    context.element?.setAttribute('data-current-path', context.currentPointerPath)
-    // console.log(context.currentPointerPath)
-}
-
-function resetCurrentPointerContext(context: Context) {
-    context.closestElement = null
-    context.currentPointerPath = null
+const resetCurrentPointerContext = (context: Context) => {
+    context.component = null
+    context.componentPosition = null
     context.element?.setAttribute('data-current-path', '')
 }
+
+
+const rect = (el) => el.getBoundingClientRect()
 
 const dragMachine = createMachine<Context, Event, State>(
     {
@@ -74,9 +79,9 @@ const dragMachine = createMachine<Context, Event, State>(
             startY: 0,
             pointerId: 0,
             element: null,
-            closestElement: undefined,
-            currentPointerPath: undefined,
-            previousPointerPath: undefined,
+            component: undefined,
+            componentPosition: undefined,
+            previousComponentPosition: undefined,
             transform: '',
         },
         invoke: {
@@ -84,11 +89,12 @@ const dragMachine = createMachine<Context, Event, State>(
         },
         states: {
             init: {
-                entry: assign({
-                    closestElement: null,
-                    currentPointerPath: null,
-                    previousPointerPath: null,
-                }),
+                entry: assign((context, _event) => ({
+                    component: null,
+                    componentPosition: null,
+                    previousComponentPosition: null,
+                    transform: context.element.style.transform,
+                })),
                 on: {
                     pointermove: {
                         target: 'dragging',
@@ -113,7 +119,6 @@ const dragMachine = createMachine<Context, Event, State>(
                                 'updateTransform',
                                 'updateCurrentPointerPath',
                                 'updatePreviousPointerPath',
-                                // 'respondIntersection',
                             ],
                         },
                         {
@@ -149,17 +154,21 @@ const dragMachine = createMachine<Context, Event, State>(
     },
     {
         actions: {
+            getElementBoundingBox: assign((context: Context, event: Event) => {
+                const elCoords = rect(context.element)
+                console.log(context, event, elCoords)
+            }),
             updateTransform: (context: Context, event: Event) => requestAnimationFrame(() => context.element.style.transform =
-                `translate3d(${event.clientX - context.startX}px,${event.clientY - context.startY}px, 0px)`),
+                `${context.transform} translate3d(${event.clientX - context.startX}px,${event.clientY - context.startY}px, 0px)`),
             resetTransform: (context) => requestAnimationFrame(() => context.element.style.transform = context.transform),
             updateCurrentPointerPath: (context, event: PointerEvent) => {
-                const closestElement = closestElementFromPoint(event);
-                closestElement
-                    ? setCurrentPointerContext(context, closestElement)
+                const closestComponent = closestElementFromPoint(event);
+                closestComponent
+                    ? setCurrentPointerContext(context, closestComponent)
                     : resetCurrentPointerContext(context)
             },
             updatePreviousPointerPath: assign({
-                previousPointerPath: (context) => context.currentPointerPath
+                componentPosition: (context) => context.componentPosition
             }),
             setInvocationId: assign({
                 invocationId: () => nanoid(6)
@@ -170,10 +179,10 @@ const dragMachine = createMachine<Context, Event, State>(
             respondIntersection: sendParent((context: Context, event: respondIntersectionEvent) => ({
                 type: "INTERSECTED",
                 originalEvent: event,
-                typeofElement: event.target.getAttribute('data-type'),
-                closestElement: context.closestElement,
-                path: context.currentPointerPath,
-                dragging: context.currentPointerPath?.length ? 'inside' : 'outside',
+                pickedUpElement: event.target,
+                component: context.component,
+                position: context.componentPosition,
+                dragging: context.componentPosition?.length ? 'inside' : 'outside',
                 invocationId: context.invocationId,
             })),
             respondDropped: sendParent((context: Context, event: DroppedEvent) => ({
@@ -182,11 +191,11 @@ const dragMachine = createMachine<Context, Event, State>(
                 clientY: event.clientY,
                 deltaX: event.clientX - context.startX,
                 deltaY: event.clientY - context.startY,
-                path: context.currentPointerPath,
-                dragging: context.currentPointerPath?.length ? 'inside' : 'outside',
+                position: context.componentPosition,
+                dragging: context.componentPosition?.length ? 'inside' : 'outside',
                 invocationId: context.invocationId,
             })),
-            respondCanceled: () => console.log('respondCanceled')
+            respondCanceled: () => console.warn('respondCanceled')
         },
         services: {
             capturePointer: (context) => (sendParent) => {
@@ -204,7 +213,7 @@ const dragMachine = createMachine<Context, Event, State>(
             },
         },
         guards: {
-            previousAndCurrentPathAreEqual: (ctx, _) => isEqual(ctx.currentPointerPath, ctx.previousPointerPath),
+            previousAndCurrentPathAreEqual: (ctx, _) => isEqual(ctx.componentPosition, ctx.previousComponentPosition),
             pointerMatches: (ctx, event) => ctx.pointerId === event.pointerId,
             minimumDistance: (ctx, event) =>
                 ctx.pointerId === event.pointerId &&
@@ -266,6 +275,7 @@ export const sidebarElementMachine = createMachine<SidebarElementContext, Sideba
                 entry: assign({
                     element: (context, event) => event.target,
                 }),
+                actions: 'getElementBoundingBox',
                 invoke: {
                     id: "drag",
                     src: dragMachine,
@@ -283,6 +293,7 @@ export const sidebarElementMachine = createMachine<SidebarElementContext, Sideba
             },
             dropped: {
                 actions: [
+                    (ctx, evt) => console.log('dropped'),
                     sendParent((context: Context, event: IntersectionEvent) => event),
                     (context, event) => {
                         context.deltaX += event.deltaX;

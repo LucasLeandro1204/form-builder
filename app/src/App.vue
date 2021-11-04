@@ -1,15 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import {onMounted, ref} from "vue";
 import {interpret} from "xstate";
+import {appMachine} from '@/components/editor/machines/app.machine'
+import Header from "@/components/editor/header/Header.vue";
 import Sidebar from '@/components/editor/sidebar/Sidebar.vue'
 import Layout from "@/components/editor/layout/Layout.vue";
-import {appMachine} from '@/components/editor/machines/app.machine'
 
-import {inspect} from '@xstate/inspect'
-import {addDataAttributes} from "@/mixins";
+// import {inspect} from '@xstate/inspect'
+// inspect({iframe: false})
 
-// inspect()
-const devTools = false
+const devTools = true
 
 const service = interpret(appMachine, {devTools})
 
@@ -17,24 +17,18 @@ const {state, send} = service.start()
 
 const current = ref(state.context)
 
-const addAppStateAttributes = (app) =>
-    addDataAttributes(app, `${state.toStrings()}`.split(','))
-
 onMounted(() => {
   const app = document.querySelector('#app')
 
   service.onTransition((state, event) => {
-    if (state.changed) {
-      current.value = state.context
-
-    }
+    current.value = state.context
   })
 })
-
 </script>
 
 <template>
   <div class="editor-app-layout">
+    <Header/>
     <Sidebar :actor-ref="state.context.sidebar.ref"/>
     <Layout :actor-ref="state.context.layout.ref"/>
   </div>
@@ -43,26 +37,27 @@ onMounted(() => {
 <style lang="scss">
 @import "./src/scss/abstracts";
 
-$off-canvas-width-xl: rem-calc(320);
-$off-canvas-width-md: rem-calc(280);
-$off-canvas-width-sm: rem-calc(240);
-$off-canvas-width-xsm: rem-calc(200);
-
 .editor-app-layout {
-  display: grid;
-  grid-template-columns: $off-canvas-width-md 1fr;
-  position: relative;
-  min-height: 100vh;
-  background: #F9F9F9;
-  overflow: hidden;
-  width: 100%;
 
-  @include set-breakpoint(tablet, down) {
-    grid-template-columns:$off-canvas-width-md 1fr;
-  }
+  .editor-layout-control {
+    left: $off-canvas-width-xl;
+    top: $app-header-height;
+    width: calc(100% - #{$off-canvas-width-xl});
 
-  @include set-breakpoint(smartphone, down) {
-    grid-template-columns: $off-canvas-width-sm 1fr;
+    @include set-breakpoint(tablet, down) {
+      left: $off-canvas-width-md;
+      width: calc(100% - #{$off-canvas-width-md});
+    }
+
+    @include set-breakpoint(smartphone, down) {
+      left: $off-canvas-width-sm;
+      width: calc(100% - #{$off-canvas-width-sm});
+    }
+
+    @include set-breakpoint(mobile, down) {
+      left: $off-canvas-width-xsm;
+      width: calc(100% - #{$off-canvas-width-xsm});
+    }
   }
 }
 </style>

@@ -6,17 +6,12 @@ const props = defineProps<{
   columnIndex: number;
 }>();
 
-
-const interactive = inject('interactive')
-
 </script>
 
 <template>
   <div class="draggable-column" draggable="true">
-    <div v-if="!interactive" class="outset-block right-block"/>
     <div class="column-inset-block">
       <slot/>
     </div>
-    <div v-if="!interactive" class="outset-block left-block"/>
   </div>
 </template>

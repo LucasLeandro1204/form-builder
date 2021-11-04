@@ -1,7 +1,10 @@
+<script setup lang="ts">
+
+</script>
+
 <template>
   <header class="editor-app-header">
     <div class="editor-app-header-grid">
-
       <div class="grid-item">
         <div class="sub-grid title-grid-item">
           <div class="sub-grid-item editor-app-close-item">
@@ -15,7 +18,6 @@
           </div>
         </div>
       </div>
-
       <div class="grid-item app-header-navigation">
         <nav class="editor-app-navigation">
           <ul class="navigation-list">
@@ -25,7 +27,6 @@
           </ul>
         </nav>
       </div>
-
       <div class="grid-item app-header-workspace">
         <div class="editor-app-last-saved">
           <div class="sub-grid">
@@ -40,23 +41,21 @@
           </div>
         </div>
       </div>
-
     </div>
   </header>
 </template>
 
-<script setup>
-</script>
-
 <style lang="scss">
-@import "../../../scss/abstracts/index";
+@import "./src/scss/abstracts/index";
 
 .editor-app-header {
   grid-column: 1/-1;
-  height: rem-calc(80);
+  height: $app-header-height;
   background: #FFFFFF;
   box-shadow: 0 rem-calc(4) rem-calc(2) rem-calc(-2) #d0d0d0;
-  z-index: 99;
+  z-index: $header-z-index;
+  position: fixed;
+  width: 100%;
 }
 
 .navigation-list {
@@ -86,9 +85,7 @@
     border-radius: rem-calc(8);
     margin: 0 rem-calc(4);
   }
-
 }
-
 
 .close-icon {
   $size: rem-calc(18);

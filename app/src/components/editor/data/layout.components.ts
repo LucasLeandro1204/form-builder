@@ -2,7 +2,7 @@ import {COLUMN, COMPONENT, DROP_ZONE, COMPONENT_PLACEHOLDER, ROW} from "@/consta
 import {nanoid} from 'nanoid';
 import {capitalize} from "lodash";
 import {toCamelCaseString} from '@/mixins'
-import {translateComponentName} from "@/components/editor/translateComponentName";
+import {translateComponentName} from "@/mixins/utils/translateComponentName";
 
 export interface RowLevel {
     id: string;

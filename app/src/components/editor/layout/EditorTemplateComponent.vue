@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import {ref, inject} from "vue";
-
-const interactive = inject('interactive')
+import {ref, inject, computed, useAttrs} from "vue";
+import {COMPONENT_PLACEHOLDER} from "@/constants";
 
 interface Component {
   id: number | string;
@@ -19,23 +18,47 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {})
 
 const component = ref(props.componentProps)
+
+const attributes = useAttrs()
+const position = attributes['data-position']
+const positionArray = `${position}`.split('-')
+const positionDepth: number = positionArray.length
+
+const message = computed(() => {
+  // todo: use {layout} from {context}
+  // todo: condtion: if {component} is the only child of its {parent}
+  switch (positionDepth) {
+    case 1:
+      return `release to add {futureComponentType} within a new column within a new row`
+    case 2:
+      return 'release to add component within a column'
+    case 3:
+      return 'release to add component to this column'
+  }
+})
+
+const isPlaceholderComponent = computed(
+    () => component.value.type === COMPONENT_PLACEHOLDER)
 </script>
 
 <template>
   <div class="draggable-component" draggable="true"
-       :class="{'placeholder-component': component.type === 'component-placeholder'}">
-    <div v-if="!interactive" class="outset-block top-block"/>
+       :class="{'placeholder-component': isPlaceholderComponent}">
     <div class="component-inset-block">
-      <span>{{ component }}</span>
+      <div v-if="isPlaceholderComponent">
+        <p class="component-position-text">
+          {{ message }}
+        </p>
+      </div>
+      <div v-else>
+        <span>{{ component }}</span>
+      </div>
     </div>
-    <div v-if="!interactive" class="outset-block bottom-block"/>
   </div>
 </template>
 
 <style lang="scss">
 @import "src/scss/abstracts";
 
-.placeholder-component {
-  background: red;
-}
+
 </style>

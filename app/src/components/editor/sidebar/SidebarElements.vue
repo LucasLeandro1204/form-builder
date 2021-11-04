@@ -23,9 +23,9 @@ const legend = ref(props.component.legend)
       {{ legend }}
     </legend>
     <div class="editor-sidebar-element-grid">
-      <div v-for="(element, index) in elements" :key="element.id" :id="index"
+      <div v-for="(element, index) in elements" :key="element.id"
            class="editor-sidebar-element-grid-item">
-        <SidebarElement :element="element"/>
+        <SidebarElement :element="element" :actor-ref="element.ref"/>
       </div>
     </div>
   </fieldset>
@@ -35,6 +35,9 @@ const legend = ref(props.component.legend)
 @import "src/scss/abstracts";
 
 .editor-sidebar-element-legend {
+  -webkit-user-select: none; /* Safari */
+  user-select: none; /* Standard syntax */
   pointer-events: none;
+  user-focus-pointer: none;
 }
 </style>

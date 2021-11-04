@@ -1,5 +1,4 @@
 export const ROW = 'row'
 export const COLUMN = 'column'
 export const COMPONENT = 'component'
-export const DROP_ZONE = 'drop-zone'
 export const COMPONENT_PLACEHOLDER = 'component-placeholder'
