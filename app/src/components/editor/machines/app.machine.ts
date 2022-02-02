@@ -31,10 +31,12 @@ export const appMachine = createMachine({
                     external: {
                         on: {
                             INTERSECTED: {
-                                actions: send((context, event) => event, {to: context => context.layout.ref}),
+                                actions: send((context, event) => event,
+                                    {to: context => context.layout.ref}),
                             },
                             DROPPED: {
-                                actions: send((context, event) => event, {to: context => context.layout.ref}),
+                                actions: send((context, event) => event,
+                                    {to: context => context.layout.ref}),
                             },
                         }
                     }

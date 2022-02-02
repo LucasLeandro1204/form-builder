@@ -1,9 +1,9 @@
-/**
+ /**
  * Sidebar
  */
 interface SidebarElement {
     as: string;
-    text: string;
+    label: string;
     icon: URL;
 }
 

@@ -1,135 +1,97 @@
 // @ts-nocheck
-import {assign, createMachine} from 'xstate';
-import {COLUMN, COMPONENT_PLACEHOLDER, ROW} from "@/constants/index.ts";
+import {assign, createMachine, send, cancel} from 'xstate';
+import {COLUMN, COMPONENT, COMPONENT_PLACEHOLDER, ROW} from "@/constants/index.ts";
 import {layout, RowLevel} from "@/components/editor/data/layout.components";
+import {translateComponentName, translateComponentType} from "@/mixins/utils/translateComponentName";
+import {capitalize} from "lodash";
+import {nanoid} from "nanoid";
+
+import {drawPoint} from '@/mixins'
 
 interface LayoutContext {
     layout: Array<RowLevel>;
+    clientPosition: Object<{ x: number, y: number }>
 }
 
-const createRowColumnComponentPlaceholder = (context) => {
+const invokeMap = (map: object) =>
+    Object.keys(Object.fromEntries(Object.entries(map)
+        .filter(([_key, value]) => value)))
+
+const elRect = (el) => el.getBoundingClientRect()
+
+const elRectCenter = (el) => {
+    const rect = elRect(el)
+    return [rect.left + rect.width / 2, rect.top + rect.height / 2]
+}
+
+const createRow = (context) => ({
+    id: context.invocationId,
+    type: ROW,
+    children: [{
+        ...createColumn(context)
+    }]
+})
+
+const createColumn = (context) => ({
+    id: context.invocationId,
+    type: COLUMN,
+    children: [{
+        ...createPlaceholder(context)
+    }]
+})
+
+const createPlaceholder = (context) => ({
+    id: context.invocationId,
+    type: COMPONENT_PLACEHOLDER,
+    as: 'LayoutPlaceholder',
+})
+
+const componentFactory = (_context, event) => {
+    const {element} = event
+    const type = element.getAttribute('data-type')
     return {
-        id: context.invocationId,
-        type: ROW,
-        children: [
-            {...createColumnComponentPlaceholder(context)}
-        ]
+        type: COMPONENT,
+        id: nanoid(),
+        as: translateComponentName(type),
+        inputType: translateComponentType(type),
+        label: capitalize(type),
     }
 }
 
-const createColumnComponentPlaceholder = (context) => {
-    return {
-        id: context.invocationId,
-        type: COLUMN,
-        children: [
-            {...createComponentPlaceholder(context)}
-        ]
-    }
-}
-
-const createComponentPlaceholder = (context) => {
-    return {
-        id: context.invocationId,
-        type: COMPONENT_PLACEHOLDER,
-        as: 'LayoutComponentPlaceholder',
-    }
-}
-
-/**
- * Use {context} to insert {element} at {position}
- *
- * @param context
- * @param event
- */
-const insertElementAtPosition = (context, event) => {
-    return new Promise((resolve) => {
-        const {layout, position} = context
-        const layoutDataset = [...layout]
-        if (position && position.length) {
-            const [row, column, component] = position
-            switch (position.length) {
-                case 1:
-                    layoutDataset.splice(row, 0, createRowColumnComponentPlaceholder(context))
-                    break;
-                case 2:
-                    layoutDataset?.[row]?.children.splice(column, 0, createColumnComponentPlaceholder(context))
-                    break;
-                case 3:
-                    layoutDataset?.[row]?.children[column]?.children.splice(component, 0, createComponentPlaceholder(context))
-                    break;
-            }
-        }
-        resolve(layoutDataset)
-    })
-}
-
-/**
- * Use {context} to remove {component} from {layout} by {id}
- *
- * 1. Remove rows that are created by the placeholder
- * 2. Remove columns that are created by the placeholder
- * 3. Remove the placeholder
- *
- * @param context
- * @param _event
- */
-const removeComponent = (context, _event) => {
-    return new Promise(resolve => {
-        resolve(
-            [...context.layout]
-                .filter(row => row.id !== context.invocationId)
-                .map(row => ({
-                    ...row,
-                    children: row.children
-                        .filter(column => column.id !== context.invocationId)
-                }))
-                .map(row => ({
-                    ...row,
-                    children: row.children
-                        .map(column => ({
-                            ...column,
-                            children: column.children
-                                .filter(component => component.id !== context.invocationId)
-                        }))
-                }))
-        )
-    })
-}
-
-/**
- * Layout Machine
- */
-export const layoutMachine = createMachine<LayoutContext>(
-    {
+export const layoutMachine = createMachine<LayoutContext>({
         id: 'layoutMachine',
-        initial: 'idle',
+        initial: 'ready',
         context: {
-            layout: layout,
+            layout,
+            delay: 0,
+        },
+        on: {
+            'DELAY.UPDATE': {
+                actions: 'updateDelayDuration'
+            },
+            DROPPED: {
+                actions: 'assignEventToPrivateContext',
+                target: 'dropped',
+            },
         },
         states: {
-            idle: {
+            ready: {
                 on: {
-                    INTERSECTED: {
-                        actions: 'assignIntersectionEventToContext',
-                        target: 'updating',
-                    },
-                    DROPPED: {
-                        actions: 'assignIntersectionEventToContext',
-                        target: 'dropped',
-                    }
-                },
-            },
-            dropped: {
-                actions: [
-                    (ctx, evt) => {
-                        console.log('DROPPED -', evt.type, ctx, evt)
-                    },
-                ]
+                    INTERSECTED: [
+                        {
+                            target: 'updating',
+                            actions: [
+                                'assignEventToPrivateContext',
+                                'drawPoint'
+                            ],
+                        },
+                    ],
+                }
             },
             updating: {
-                initial: 'preparing',
+                initial: 'evaluating',
                 states: {
-                    preparing: {
+                    evaluating: {
                         always: [
                             {
                                 target: 'removing',
@@ -142,9 +104,8 @@ export const layoutMachine = createMachine<LayoutContext>(
                     },
                     removing: {
                         invoke: {
-                            id: 'removing',
-                            src: (context, event) =>
-                                removeComponent(context, event),
+                            id: 'remove',
+                            src: 'removeComponentById',
                             onDone: {
                                 target: 'inserting',
                                 actions: 'assignLayout',
@@ -153,9 +114,8 @@ export const layoutMachine = createMachine<LayoutContext>(
                     },
                     inserting: {
                         invoke: {
-                            id: "inserting",
-                            src: (context, event) =>
-                                insertElementAtPosition(context, event),
+                            id: 'insert',
+                            src: 'insertComponentAtPosition',
                             onDone: {
                                 target: 'finished',
                                 actions: 'assignLayout',
@@ -166,19 +126,71 @@ export const layoutMachine = createMachine<LayoutContext>(
                         type: 'final',
                     },
                 },
-                onDone: 'delayedReset',
+                onDone: 'resetting',
             },
-            delayedReset: {
+            dropped: {
+                invoke: {
+                    id: 'drop',
+                    src: 'commitComponentAtPosition',
+                    onDone: {
+                        actions: 'assignLayout',
+                        target: 'resetting',
+                    },
+                },
+            },
+            resetting: {
                 after: {
-                    100: {
-                        target: 'idle'
+                    RESET_DELAY: {
+                        target: 'ready'
                     }
                 }
             },
         },
     },
     {
+        delays: {
+            RESET_DELAY: (context) => context.delay * 1
+        },
+        guards: {
+            dropAllowed: (context, _event) => (context?.position?.length),
+            alreadyInserted: (context, _event) => context.layout.some(row =>
+                row.children.some(column => column.children.some(component =>
+                    component.id === context.invocationId))),
+        },
         actions: {
+            drawPoint: (context, _event) => {
+                console.log(context)
+                const point = document.createElement('div')
+                const color = '#FFFFFF'
+                const text = '!'
+                const pointSize = '1em'
+                point.style.position = 'absolute'
+                point.style.left = `${context.clientX}px`
+                point.style.top = `${context.clientY}px`
+                point.style.width = pointSize
+                point.style.height = pointSize
+                point.style.zIndex = '9999'
+                point.style.borderRadius = '50%'
+                point.style.backgroundColor = `${color}`
+                point.style.transform = 'scale(0)'
+                point.style.transition = 'all ease 320ms'
+                point.textContent = text
+                point.classList.add('point')
+                document.body.appendChild(point)
+                setTimeout(() =>
+                    point.style.transform = 'scale(1)', 0)
+                setTimeout(() => {
+                    point.style.transform = 'scale(0)'
+                    setTimeout(() =>
+                        document.body.removeChild(point), 300)
+                }, 1500)
+            },
+            updateDelayDuration: assign({
+                delay: (_context, event) => event.value
+            }),
+            assignEventToPrivateContext: assign((context, event) => {
+                Object.keys(event).forEach((key) => context[key] = event[key])
+            }),
             assignLayout: assign({
                 layout: (context, event) => event.data,
             }),
@@ -186,35 +198,86 @@ export const layoutMachine = createMachine<LayoutContext>(
                 layout: (context) =>
                     context.layout.map(row => ({
                         ...row,
+                        children: row.children.map(column => ({
+                            ...column,
+                            children: column.children.map(component => ({
+                                ...component
+                            })),
+                        })),
+                    })),
+            }),
+        },
+        services: {
+            insertComponentAtPosition: (context, _event) => new Promise((resolve) => {
+                const {layout, position, clientX, clientY} = context
+                const layoutDataset = [...layout]
+                const [centerX, centerY] = elRectCenter(context.component)
+                const [intersectedX, intersectedY] = invokeMap({
+                    'right': Boolean(clientX > centerX),
+                    'left': Boolean(clientX < centerX),
+                    'top': Boolean(clientY < centerY),
+                    'bottom': Boolean(clientY > centerY),
+                })
+                const [row, column, component] = position
+                let insertAt: number, insertElement: object
+                switch (position.length) {
+                    case 1:
+                        insertAt = intersectedY === 'bottom' ? (row + 1) : row
+                        insertElement = createRow(context)
+                        layoutDataset.splice(insertAt, 0, insertElement)
+                        break;
+                    case 2:
+                        insertAt = intersectedX === 'right' ? (column + 1) : column
+                        insertElement = createColumn(context)
+                        layoutDataset?.[row]?.children.splice(insertAt, 0, insertElement)
+                        break;
+                    case 3:
+                        insertAt = intersectedY === 'bottom' ? (component + 1) : component
+                        insertElement = createPlaceholder(context)
+                        layoutDataset?.[row]?.children[column]?.children.splice(insertAt, 0, insertElement)
+                        break;
+                }
+                resolve(layoutDataset)
+            }),
+            commitComponentAtPosition: (context, event) => new Promise(resolve => resolve(
+                [...context.layout]
+                    .map(row => ({
+                        ...row,
+                        id: row.id === context.invocationId
+                            ? nanoid()
+                            : row.id
+                    }))
+                    .map(row => ({
+                        ...row,
+                        children: row.children.map(column => ({
+                            ...column,
+                            children: column.children.map(component => ({
+                                ...componentFactory(context, event),
+                                id: component.id === context.invocationId
+                                    ? nanoid()
+                                    : component.id
+                            }))
+                        }))
+                    }))
+            )),
+            removeComponentById: (context, _event) => new Promise(resolve => resolve(
+                [...context.layout]
+                    .filter(row => row.id !== context.invocationId)
+                    .map(row => ({
+                        ...row,
+                        children: row.children
+                            .filter(column => column.id !== context.invocationId)
+                    }))
+                    .map(row => ({
+                        ...row,
                         children: row.children
                             .map(column => ({
                                 ...column,
                                 children: column.children
-                                    .map(component => ({
-                                        ...component
-                                    })),
-                            })),
-                    })),
-            }),
-            assignIntersectionEventToContext: assign((context, event) => {
-                    context.position = event.position
-                    context.dragging = event.dragging
-                    context.pickedUpElement = event.pickedUpElement
-                    context.component = event.component
-                    context.originalEvent = event.originalEvent
-                    context.invocationId = event.invocationId
-                }),
-        },
-        guards: {
-            draggingInside: (_context, event) => (event.dragging === 'inside'),
-            draggingOutside: (context, event) => (event.dragging === 'outside'),
-            canDrop: (context, _event) => (context?.position?.length),
-            alreadyInserted: (context, _event) =>
-                context.layout.some(row =>
-                    row.children.some(column =>
-                        column.children.some(component =>
-                            component.id === context.invocationId))
-                ),
+                                    .filter(component => component.id !== context.invocationId)
+                            }))
+                    }))
+            )),
         },
     }
 );

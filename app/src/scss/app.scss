@@ -96,6 +96,7 @@ body {
   text-align: left;
   background: rgba(227, 236, 245, 1);
   color: $app-font-color;
+  filter: invert(0%);
 
   ::selection {
     background: rgba(207, 92, 252, 0.7);

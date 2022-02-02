@@ -5,9 +5,14 @@ import {appMachine} from '@/components/editor/machines/app.machine'
 import Header from "@/components/editor/header/Header.vue";
 import Sidebar from '@/components/editor/sidebar/Sidebar.vue'
 import Layout from "@/components/editor/layout/Layout.vue";
+import Sort from '@/components/editor/Sort.vue'
 
-// import {inspect} from '@xstate/inspect'
-// inspect({iframe: false})
+import {inspect} from '@xstate/inspect'
+import Dragging from "../examples/Dragging.vue";
+
+// inspect({
+//   iframe: false
+// })
 
 const devTools = true
 
@@ -29,8 +34,11 @@ onMounted(() => {
 <template>
   <div class="editor-app-layout">
     <Header/>
+
     <Sidebar :actor-ref="state.context.sidebar.ref"/>
+
     <Layout :actor-ref="state.context.layout.ref"/>
+
   </div>
 </template>
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 const props = defineProps<{
-  rowIndex: number
 }>();
 </script>
 
 <template>
-  <div class="draggable-row" draggable="true">
+  <div class="draggable-row"
+       draggable="true">
     <div class="row-inset-block">
       <slot/>
     </div>

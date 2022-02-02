@@ -14,10 +14,11 @@ const components = computed(() => state.value.context.components)
 
 <template>
   <aside class="editor-layout-sidebar">
-    <section class="edtior-layout-section">
+    <section class="editor-layout-section">
       <SidebarSearch/>
     </section>
-    <section v-for="(component, idx) in components" :key="idx" class="edtior-layout-section">
+    <section v-for="(component, idx) in components" :key="idx"
+             class="editor-layout-section">
       <SidebarComponentGroup :component="component"/>
     </section>
   </aside>
@@ -42,7 +43,7 @@ $element-border-size: rem-calc(2);
   box-shadow: rem-calc(6) 0 rem-calc(6) rem-calc(-6) #d3cfcf;
   top: 0;
 
-  .edtior-layout-section {
+  .editor-layout-section {
     display: flex;
     margin: rem-calc(18) 0;
   }
@@ -53,8 +54,6 @@ $element-border-size: rem-calc(2);
   width: 100%;
   margin: rem-calc(8) 0;
   z-index: $sidebar-element-z-index;
-  //.option-text {}
-  //.editor-element-icon {}
 
   .editor-sidebar-element-legend {
     color: #575757;

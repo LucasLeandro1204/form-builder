@@ -1,13 +1,14 @@
 // @ts-nocheck
-import {createMachine, assign, spawn, send, sendParent} from 'xstate'
-import {sidebarElements as components, sidebarElements as Components} from "../data/sidebar.elements";
+
+import {createMachine, assign, spawn, sendParent} from 'xstate'
+import {sidebarElements as components} from "../data/sidebar.elements";
 import {IntersectionEvent, sidebarElementMachine} from "@/components/editor/machines/sidebar.element.machine";
 
 export const sidebarMachine = createMachine({
     id: 'sidebar',
     initial: "loading",
     context: {
-        components: components,
+        components,
     },
     states: {
         loading: {
@@ -32,10 +33,7 @@ export const sidebarMachine = createMachine({
                             actions: sendParent((context, event: IntersectionEvent) => event)
                         },
                         DROPPED: {
-                            actions: [
-                                (ctx, evt) => console.log('dropped'),
-                                sendParent((context, event: IntersectionEvent) => event),
-                            ]
+                            actions: sendParent((context, event: IntersectionEvent) => event),
                         },
                     },
                 }

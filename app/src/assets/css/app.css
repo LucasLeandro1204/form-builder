@@ -11657,7 +11657,7 @@ body {
   text-align: left;
   background: #e3ecf5;
   color: #22304a;
-  filter: invert(0%);
+  filter: invert(100%) !important;
 }
 body ::selection {
   background: rgba(207, 92, 252, 0.7);

@@ -202,7 +202,6 @@ export function everythingBetween(array) {
 }
 
 
-
 /**
  * Listener for keydown events on form fields
  *
@@ -366,6 +365,33 @@ export function nodeWithIdHasChildren(children, id) {
     }
 }
 
+export const drawPoint = (x, y, color = 'black', timeout = 5000, text = 'enter', size = '2.5em') => {
+    const point = document.createElement('div')
+    const pointSize = size
+    point.style.position = 'absolute'
+    point.style.left = `${x}px`
+    point.style.top = `${y}px`
+    point.style.width = pointSize
+    point.style.height = pointSize
+    point.style.zIndex = '9999'
+    point.style.borderRadius = '50%'
+    point.style.backgroundColor = `${color}`
+    point.style.transform = 'scale(0)'
+    point.style.transition = 'all ease 320ms'
+    point.textContent = text
+    point.classList.add('point')
+    document.body.appendChild(point)
+
+    setTimeout(() =>
+        point.style.transform = 'scale(1)', 0)
+
+    setTimeout(() => {
+        point.style.transform = 'scale(0)'
+        setTimeout(() =>
+            document.body.removeChild(point), 300)
+    }, timeout)
+}
+
 /**
  * UNTESTED
  * @param parent
@@ -402,35 +428,6 @@ export const flattenNestedArray = (array) => {
     return !array.children || !array.children.length
         ? member
         : [member, _.flatMapDeep(array.children, flattenNestedArray)];
-}
-
-export const findPath = (ob, key, value) => {
-    const path = [];
-    const keyExists = (obj) => {
-        if (!obj || (typeof obj !== "object" && !Array.isArray(obj))) {
-            return false;
-        } else if (obj.hasOwnProperty(key) && obj[key] === value) {
-            return true;
-        } else if (Array.isArray(obj)) {
-            let parentKey = path.length ? path.pop() : "";
-            for (let i = 0; i < obj.length; i++) {
-                path.push(`${parentKey}[${i}]`);
-                const result = keyExists(obj[i], key);
-                if (result) return result;
-                path.pop();
-            }
-        } else {
-            for (const k in obj) {
-                path.push(k);
-                const result = keyExists(obj[k], key);
-                if (result) return result;
-                path.pop();
-            }
-        }
-        return false;
-    };
-    keyExists(ob);
-    return path.join(".");
 }
 
 export const addDataAttributes = (elements, state) =>
@@ -481,7 +478,7 @@ const filterDeep = (pred) => (obj) =>
         : obj
 
 
-const findPathData = (context, data = {}) => {
+const findArrayPathData = (context, data = {}) => {
     context.layout.forEach((row, rowIndex) => {
         if ((!row.children || (row.children && !row.children.length))) {
             Object.assign(data, {
@@ -501,7 +498,7 @@ const findPathData = (context, data = {}) => {
     return data;
 }
 
-const findExactElementPath = (context) => {
+const findArrayPath = (context) => {
     let unsetPath = ``
     context.layout.forEach((row, rowIndex) => {
         if ((!row.children || (row.children && !row.children.length))) {
@@ -546,5 +543,29 @@ export const center = (el) => {
     return [elRect.left + elRect.width / 2, elRect.top + elRect.height / 2];
 }
 
+/**
+ * setElementDataAttribute
+ * @param el
+ * @param value
+ */
 export const setElementDataAttribute = (el, value) =>
     addDataAttributes(el, value)
+
+/**
+ * obscureEmail
+ * @param email
+ * @returns {`${string}${string}@${*}`}
+ */
+const obscureEmail = (email) => {
+    const [name, domain] = email.split('@');
+    return `${name[0]}${new Array(name.length).join('*')}@${domain}`;
+};
+
+    /**
+     * takeTruthyValues
+     * @param objectMap
+     * @returns {string[]}
+     */
+    export const takeTruthyValues = (objectMap) =>
+        Object.keys(Object.fromEntries(Object.entries(objectMap)
+            .filter(([_key, value]) => value)))

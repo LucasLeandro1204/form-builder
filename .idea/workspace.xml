@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="bae43d43-d735-4662-b344-80a9170ded4b" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="ProjectId" id="21gGw9aLiYFwup1zU9FoHs6BLv0" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="false" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="MTHome" />
+    <property name="ts.external.directory.path" value="C:\xampp\htdocs\form-builder\app\node_modules\typescript\lib" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\form-builder\app\src\mixins\polyfills" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bae43d43-d735-4662-b344-80a9170ded4b" name="Changes" comment="" />
+      <created>1638355554664</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1638355554664</updated>
+      <workItem from="1638355555937" duration="158000" />
+      <workItem from="1638380848992" duration="795000" />
+      <workItem from="1638488947647" duration="110000" />
+      <workItem from="1638489469903" duration="144000" />
+      <workItem from="1638490190107" duration="809000" />
+      <workItem from="1638523419035" duration="35000" />
+      <workItem from="1638566488744" duration="2661000" />
+      <workItem from="1638743380788" duration="875000" />
+      <workItem from="1638744725428" duration="29000" />
+      <workItem from="1638811747694" duration="1145000" />
+      <workItem from="1638821318351" duration="322000" />
+      <workItem from="1638917349574" duration="6000" />
+      <workItem from="1639062263040" duration="870000" />
+      <workItem from="1639861560980" duration="602000" />
+      <workItem from="1640217734918" duration="594000" />
+      <workItem from="1640271130141" duration="39000" />
+      <workItem from="1640271395663" duration="202000" />
+      <workItem from="1642247066394" duration="2317000" />
+      <workItem from="1642274102927" duration="5000" />
+      <workItem from="1642289134979" duration="2116000" />
+      <workItem from="1642352809437" duration="1536000" />
+      <workItem from="1642442473724" duration="649000" />
+      <workItem from="1642803444581" duration="981000" />
+      <workItem from="1642858921217" duration="177000" />
+      <workItem from="1642859117629" duration="1240000" />
+      <workItem from="1643421872642" duration="661000" />
+      <workItem from="1643460018791" duration="47000" />
+      <workItem from="1643823782471" duration="578000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

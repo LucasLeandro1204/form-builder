@@ -11,10 +11,10 @@
             <span class="close-symbol">&#x2715;</span>
           </div>
           <div class="sub-grid-item">
-            <div class="editor-app-header-title">
-              <h1 class="text-title">Form Builder</h1>
-              <p class="text-sub-title">Add and customize forms for your needs</p>
-            </div>
+<!--            <div class="editor-app-header-title">-->
+<!--              <h1 class="text-title">Form Builder</h1>-->
+<!--              <p class="text-sub-title">Add and customize forms for your needs</p>-->
+<!--            </div>-->
           </div>
         </div>
       </div>

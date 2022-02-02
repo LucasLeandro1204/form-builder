@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref, watch, onMounted, useAttrs} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {ActorRef} from "xstate";
 import {useActor} from "@xstate/vue";
 
@@ -21,30 +21,37 @@ watch(state, (state) => {
     current.value = state.value
   }
 })
+
+
+onMounted(() => {
+
+  // const rows = document.querySelectorAll('.draggable-row')
+  // const columns = document.querySelectorAll('.draggable-column')
+  // const components = document.querySelectorAll('.draggable-component')
+  //
+  // const draggableList = [...rows, ...columns, ...components]
+  // console.log(draggableList)
+  //
+  //
+  // // Loop through each nested sortable element
+  // for (let i = 0; i < draggableList.length; i++) {
+  //   console.log(draggableList[i])
+  // }
+})
 </script>
 
 <template>
   <Row v-for="(row, index) in layout"
        :key="row.id"
-       :data-position="index"
-       :row-index="index"
-       ref="rows">
+       :data-position="index">
     <Column v-for="(column, idx) in row.children"
             :key="column.id"
-            :data-position="`${index}-${idx}`"
-            :row-index="index"
-            :column-index="idx"
-            ref="columns">
-      <div v-if="column.children && column.children.length">
-        <Component v-for="(component, i) in column.children"
-                   :key="component.id"
-                   :data-position="`${index}-${idx}-${i}`"
-                   :component-props="component"
-                   :row-index="index"
-                   :column-index="idx"
-                   :component-index="i"
-                   ref="components"/>
-      </div>
+            :data-position="`${index}-${idx}`">
+      <Component v-for="(component, i) in column.children"
+                 :key="component.id"
+                 :layout="layout"
+                 :data-position="`${index}-${idx}-${i}`"
+                 :component="component"/>
     </Column>
   </Row>
 </template>
@@ -52,7 +59,27 @@ watch(state, (state) => {
 <style lang="scss">
 @import "./src/scss/abstracts";
 
-$red: rgb(234, 26, 26);
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.1s ease;
+  opacity: 1;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+}
+
+.point {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2em;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+$red: rgba(255, 142, 202, 0.56);
 
 .editor-template-layout {
   position: relative;
@@ -67,7 +94,7 @@ $red: rgb(234, 26, 26);
 
 .draggable-row {
   .row-inset-block {
-    border-radius: rem-calc(12);
+    //border-radius: rem-calc(12);
   }
 
   .draggable-column {
@@ -89,6 +116,7 @@ $red: rgb(234, 26, 26);
 .component-inset-block {
   overflow: hidden;
   width: 100%;
+  outline: none;
 
   > div {
     width: 100%;
@@ -119,6 +147,7 @@ $red: rgb(234, 26, 26);
   position: relative;
   overflow: hidden;
   width: 100%;
+  outline: none;
 
   .component-inset-block {
     padding: rem-calc(50);
@@ -129,6 +158,10 @@ $red: rgb(234, 26, 26);
   &.placeholder-component {
     .component-inset-block {
       background: #0101014a;
+
+      .component-position-text {
+        color: #FFFFFF;
+      }
     }
   }
 
@@ -148,10 +181,11 @@ $red: rgb(234, 26, 26);
   position: relative;
   overflow: hidden;
   width: 100%;
+  outline: none;
 
   > span {
     padding: rem-calc(18);
-    font-weight: 500;
+    text-shadow: 1px 0 0 currentColor;
     pointer-events: none;
   }
 
@@ -194,8 +228,8 @@ $red: rgb(234, 26, 26);
     flex-direction: column;
     width: 100%;
     height: 100%;
-    color: black;
     text-align: center;
+
   }
 }
 
@@ -208,28 +242,16 @@ $red: rgb(234, 26, 26);
 .draggable-row {
   cursor: move;
 
-  &:hover {
-    background: $red;
-  }
-
   .draggable-column {
     cursor: move;
 
-    &:hover {
-      .draggable-component {
-        &:hover {
-          background: $red;
-        }
-
-        .component-inset-block {
-          background: white;
-
-          * {
-            color: black;
-          }
-        }
+    .draggable-component {
+      &.hover {
+        background: $red;
       }
+
     }
+
   }
 }
 
@@ -250,10 +272,10 @@ $red: rgb(234, 26, 26);
   .component-inset-block {
     .component-position-text {
       text-align: center;
-      color: #f6eded;
-      font-weight: 900;
-      font-size: rem-calc(16);
-      letter-spacing: em-calc(0.8);
+      //color: #f6eded;
+      //text-shadow: 1px 0 0 currentColor;
+      //font-size: rem-calc(16);
+      //letter-spacing: em-calc(0.8);
 
       &:first-letter {
         text-transform: uppercase;
